@@ -1,0 +1,13 @@
+/tmp
+/config/apigateway/apigateway.1.cfg
+/local/apigateway/apis/tmp
+/local/apigateway/tmp
+/local/apigateway/ondisk
+/local/apigateway/apis/_apis.index.js.bak
+/local/apigateway/apis/tests/tmp/*
+/local/apigateway/gateway/api-gateway/apigw-auth-app.1.js
+/local/apigateway/gateway/api-gateway/apigw-req-in.1.js
+/local/apigateway/gateway/api-gateway/apigw-req-out.1.js
+/local/apigateway/gateway/api-gateway/apigw-res-out.1.js
+/local/apigateway/gateway/api-gateway/apigw-res-in.1.js
+

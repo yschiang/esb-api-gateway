@@ -1,0 +1,103 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "properties": {
+    "basePath": {
+      "type": "string",
+      "pattern": "^(/[\\w-]+)+[^\/]$"
+    },
+    "defaultBackend": { "$ref": "#/definitions/backend" },
+    "info": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "patternProperties": {
+        "^(/.+)$": { "$ref": "#/definitions/path" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "required": [ "basePath", "info", "paths" ],
+  "definitions": {
+    "path": {
+      "type": "object",
+      "properties": {
+        "post": { "$ref": "#/definitions/operation" },
+        "get": { "$ref": "#/definitions/operation" },
+        "put": { "$ref": "#/definitions/operation" },
+        "delete": { "$ref": "#/definitions/operation" }
+      },
+      "additionalProperties": false
+    },
+    "operation": {
+      "type": "object",
+      "properties": {
+        "request": { "$ref": "#/definitions/operationRequestOrResponse" },
+        "response": { "$ref": "#/definitions/operationRequestOrResponse" },
+        "backend": { "$ref": "#/definitions/backend" }
+      },
+      "required": [ "request", "response" ],
+      "additionalProperties": false
+    },
+    "operationRequestOrResponse": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "pattern": "^.+\\/(json|xml)$"
+        },
+        "schema": {
+          "type": "string",
+          "pattern": "^.+(\\.jsv|\\.xsd)$"
+        },
+        "processor": {
+          "type": "string",
+          "pattern": "^.+(\\.js|\\.xsl)$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "backend": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "pattern": "^.+\\/(json|xml)$"
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^http[s]?:\/\/.+$"
+        },
+        "method": {
+          "enum": [ "post", "get", "delete", "put" ]
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "override": { "type": "boolean" },
+            "processor": {
+              "type": "string",
+              "pattern": "^.+(\\.js|\\.xsl)$"
+            }
+          },
+          "required": [ "processor" ],
+          "additionalProperties": false
+        }
+      },
+      "required": [ "url" ],
+      "additionalProperties": false
+    }
+  }
+}

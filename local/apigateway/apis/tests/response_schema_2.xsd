@@ -1,0 +1,33 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="headers">
+          <xs:complexType>
+            <xs:sequence>
+							<xs:any minOccurs="0" maxOccurs='unbounded' processContents='lax'/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element type="xs:string" name="http-method"/>
+        <xs:element type="xs:anyURI" name="url"/>
+        <xs:element name="body">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="request">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="response-dont-have-this-field"/>
+                    <xs:element type="xs:string" name="toCurrency"/>
+                    <xs:element type="xs:string" name="fromCurrency"/>
+                    <xs:element type="xs:short" name="amount"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

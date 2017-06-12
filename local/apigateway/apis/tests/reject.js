@@ -1,0 +1,1 @@
+session.reject("rejected by processor");

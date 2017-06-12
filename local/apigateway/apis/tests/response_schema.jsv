@@ -1,0 +1,14 @@
+{
+	"$schema":"http://json-schema.org/draft-04/schema#",
+	"type":"object",
+	"properties":{
+		"headers": { "type":"object" },
+		"body": { "type": "object" },
+		"httpMethod": { "type": "string" }
+	},
+  "required": [
+    "headers",
+    "body",
+    "httpMethod"
+  ]
+}

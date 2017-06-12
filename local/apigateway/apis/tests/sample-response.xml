@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<response>
+    <headers>
+        <Host>127.0.0.1:8198</Host>
+        <Authorization>Basic
+            dGhlbmVhdGVsaWRlcHR1cmVhY2hpZ2h0OmMwNzlkYTkxM2ZkOWRmNzQxNzFkMWE2YWI0NGYzMTU5Yjk3MTE2NTE=</Authorization>
+        <Postman-Token>793576f5-caa8-a411-dc0a-4923eb5f92de</Postman-Token>
+        <Cache-Control>no-cache</Cache-Control>
+        <Origin>chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo</Origin>
+        <User-Agent>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like
+            Gecko) Chrome/55.0.2883.95 Safari/537.36</User-Agent>
+        <Accept>*/*</Accept>
+        <Accept-Language>en-US,en;q=0.8</Accept-Language>
+        <Via>1.1 AQAAAFuVmYE-</Via>
+        <X-Client-IP>172.17.0.1</X-Client-IP>
+        <X-Global-Transaction-ID>29728</X-Global-Transaction-ID>
+        <Content-Type>application/xml</Content-Type>
+        <Content-Length>150</Content-Length>
+    </headers>
+    <http-method>POST</http-method>
+    <url>http://127.0.0.1:8198/backend/post/xml</url>
+    <body>
+        <Request>
+            <toCurrency>USD</toCurrency>
+            <fromCurrency>TWD</fromCurrency>
+            <amount>10000</amount>
+        </Request>
+    </body>
+</response>

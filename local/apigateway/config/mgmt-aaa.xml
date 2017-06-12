@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AAAInfo xmlns="http://www.datapower.com/AAAInfo">
+  <FormatVersion>1</FormatVersion>
+  <Filename>local:///config/mgmt-aaa.xml</Filename>
+  <Summary>Control the access to rest mgmt APIs.</Summary>
+
+  <Authenticate>
+    <Username>tonyf</Username>
+    <Password>tonyf</Password>
+    <OutputCredential>tonyf</OutputCredential>
+  </Authenticate>
+
+  <Authenticate>
+    <Username>hsy</Username>
+    <Password>123456789</Password>
+    <OutputCredential>admin</OutputCredential>
+  </Authenticate>
+
+<!--
+  <MapCredentials>
+    <InputCredential>tonyf</InputCredential>
+    <OutputCredential>admin</OutputCredential>
+  </MapCredentials>
+-->
+</AAAInfo>

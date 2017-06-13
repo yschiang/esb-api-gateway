@@ -8,7 +8,7 @@ exports.api =
   },
   "basePath": "/tests",
   "defaultBackend": {
-    "url": "http://127.0.0.1:8198/defaultBackend1",
+    "url": "http://127.0.0.1:8198/defaultBackend",
     "type": "application/json",
     "error": {
       "processor": "default_backend_error.js"
@@ -412,6 +412,22 @@ exports.api =
         "backend": {
           "url":"http://127.0.0.1:8198/backend/webservice",
           "type":"application/xml"
+        }
+      }
+    },
+
+    // parameterized query
+    "/parameterized/{param1}/parts/{param2}": {
+      "post":{
+        "request":{
+          "type":"application/json",
+          "processor":"request_processor_params.js"
+        },
+        "response":{
+          "type":"application/json"
+        },
+        "backend": {
+          "url":"http://127.0.0.1:8198/backend/foo=$(request.parameters.param1)&bar=$(request.parameters.param2)"
         }
       }
     }

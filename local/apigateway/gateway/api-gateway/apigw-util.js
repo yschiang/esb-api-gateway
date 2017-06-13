@@ -6,6 +6,8 @@
  * 2017/03/27 Added param for suppressing prependState in gateway console log.
  */
 
+let CTX_NAME = 'apimgr';
+
 var GatewayConsole = function() {
 
     function GatewayConsole(category) {
@@ -242,12 +244,6 @@ var GatewayState = function() {
 }();
 
 
-function logAnalyticsFull (analyticsLog, payload) {
-
-
-
-}
-
 // @description Populate error object 
 // @params _this should be a GatewayState instance
 //         _arguments should be either an arrays of
@@ -322,8 +318,45 @@ var UserDefinedModule = function() {
     return UserDefinedModule;
 }();
 
+var Session = function() {
+    var Session = function () {
+        this._ctx = session.name('apimgr');
+        this._parameters = this._ctx ? this._ctx.getVar("parameters") : null;
+    }
+
+    Object.defineProperty(Session.prototype, 'parameters', {
+        get: function() {
+            return this._parameters;
+        },
+        set: function(params) {
+            this._parameters = params;
+            this._ctx.setVar("parameters", params);
+        }
+    });
+
+    Session.prototype.replaceParameters = function (input, urlencode) {
+        let ret = input;
+        for (let param in this._parameters) {
+            // match $(request.parameters.[param])
+            // urlencode to the backend url
+            let toMatch = '$(request.parameters.' + param + ')';
+            let splits = ret.split(toMatch);
+            if (splits.length == 2) {
+                let replacement = urlencode ? encodeURI(this._parameters[param]) : this._parameters[param];
+                ret = splits[0] + replacement + splits[1];
+            }
+        }
+        return ret;
+    }
+
+    return Session;
+
+}();
+
+
 
 exports.GatewayState = GatewayState;
 exports.GatewayConsole = GatewayConsole;
 exports.abort = abort;
 exports.UserDefinedModule = UserDefinedModule;
+exports.Session = Session;

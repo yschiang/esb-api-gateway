@@ -51,7 +51,7 @@ let vars = {
     "operation": serviceVars.protocolMethod.toLowerCase(),
     "definitionDir": "",
     "definitionModule": "",
-    "params": "",
+    "parameters": "",
     "clientIp": "",
     "clientId": "",
     "clientForwardedBy": "",

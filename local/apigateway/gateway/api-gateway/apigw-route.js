@@ -20,8 +20,10 @@ var env = require('../settings').ENV,
 	serviceVars = require('service-metadata'),
 	headerMetadata = require('header-metadata'),
 	url = require('url'),
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole;
+	gwUtils = require('./apigw-util'),
+    GatewayState = gwUtils.GatewayState,
+    GatewayConsole = gwUtils.GatewayConsole,
+	Session = gwUtils.Session;
 
 const _console = new GatewayConsole(env['api.log.category']);
 //const _state = 'ROUTE';
@@ -80,6 +82,7 @@ function getSchema(v, type) {
 	}
 }
 
+let sess = new Session();
 
 // INPUT
 // URIin: "/fx/rates?client_id=123"
@@ -138,7 +141,7 @@ for (let path in oneApi.paths) {
 					let paramValue = matched[i];
 					params[paramName] = paramValue;
 				}
-				_ctx.setVar('params', params);
+				sess.parameters = params; //_ctx.setVar('parameters', params);
 			}
 		}
     }
@@ -152,32 +155,6 @@ for (let path in oneApi.paths) {
 			break;
 		}
 	}
-
-	// let pattern = path;
-	// if (pattern.indexOf('{') != -1) {
-	// 	let tokens = pattern.split(/{[^}]*}/);
-	// 	let newpath = tokens[0];
-	// 	for (let i = 1; i<tokens.length; i++) {
-	// 		newpath += "([^/]+)" + tokens[i];
-	// 	}
-		
-	// 	//console.error("new path = " + newpath + " with item = " + pattern);
-	// 	pattern = newpath;
-	// }
-	// pattern = ("^" + pattern + "$");  
-	
-	// let resource = oneApi.paths[path];
-	// resourceName = path;
-	// var regex = new RegExp(pattern);
-	
-	// //console.error("pattern=[" + pattern + '] inpath=[' + inPath + ']');
-	
-	// if (regex.test(inPath)) {
-	// 	if (resource[inVerb]) {
-	// 		oneResource = resource[inVerb];
-	// 		break;
-	// 	}
-	// }
 }
 
 if (oneResource) {
@@ -187,7 +164,6 @@ if (oneResource) {
 
 	// backend
 	let backend = (oneResource.backend && oneResource.backend.url) ? oneResource.backend : oneApi.defaultBackend;
-	console.error(" XXX " + JSON.stringify(oneResource.backend));
 	let backendUrl = backend.url; // url is a required field for backend object
 	let backendType = backend.type ? backend.type : defaults.type;
 	// by default proxy the method in client to backend
@@ -212,8 +188,12 @@ if (oneResource) {
 	}
 
 	// set backend url and content-type once determined
+	let replacementRe = /\$\(request\.parameters\.[a-zA-Z0-9-_]+\)/;
+	if (replacementRe.test(backendUrl)) { /* the specified backend url contains replacement params */
+		backendUrl = sess.replaceParameters(backendUrl, true /*do urlencode*/);
+	}
 	_ctx.setVar('backendUrl', backendUrl);
-	serviceVars.setVar('var://service/routing-url', backend.url);
+	serviceVars.setVar('var://service/routing-url', backendUrl);
 
 	_ctx.setVar('backendMethod', backendMethod);
 	serviceVars.protocolMethod = backendMethod;

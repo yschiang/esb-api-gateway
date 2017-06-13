@@ -142,7 +142,7 @@ let Clients = (function() {
 // main
 var c = new Clients();
 try {
-    c.init("local:///config/apps-orgs.js");
+    c.init("local:///config/apps.js");
     if (c.route()) {
         c.execute();
     } else {

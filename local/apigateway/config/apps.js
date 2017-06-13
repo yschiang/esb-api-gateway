@@ -4,7 +4,7 @@ module.exports = {
     // Properties:
     //   .description - string.
     //   .acl - optional. An array of CIDR formatted string. When not specified, by default allow all.
-    //   .organization - string. 
+    //   .organization - string. Org's seq No.
     //   .authorizedResources - see following examples.
 
     // Examples for authorizedResources:
@@ -24,11 +24,9 @@ module.exports = {
     //
     // "authorizedResources": "*", // allow all apis,
 
-
-
     "super-tester-1234567890": {
         "description": "tester with all permissions",
-        "organization": "super-testers",
+        "organization": "org_seq_no2",
         "authorizedResources": {
             "/tests": "*",
             "/tests/v2": "*",
@@ -42,7 +40,7 @@ module.exports = {
 
     "limited-tester-1234567890": {
         "description": "tester with limited permissions",
-        "organization": "limited-testers",
+        "organization": "org_seq_no1",
         "authorizedResources": {
             "/tests": {
                 "/authapp/allow-all": "*",

@@ -1,12 +1,13 @@
-module.exports = {
+module.exports = [
 
-    "super-testers": {
-        "description": "",
-        "sn": "org_seq_no1"
+    {
+        "sn": "org_seq_no1",
+        "name": "limited-testers"
     },
 
-    "limited-testers": {
-        "description": "",
-        "sn": "org_seq_no2"
+    {
+        "sn": "org_seq_no2",
+        "name": "super-testers"
     }
-};
+
+];

@@ -1,0 +1,356 @@
+{
+	"variables": [],
+	"info": {
+		"name": "ESUN API Mgmt Gateway",
+		"_postman_id": "c3881f35-31f9-5de7-a4c1-94fe28910120",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/mgmt/apis",
+			"description": "",
+			"item": [
+				{
+					"name": "Create API",
+					"request": {
+						"url": "{{MGMT_ENDPOINT}}/mgmt/apis/tests/v2",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic dG9ueWY6dG9ueWY=",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"info\":{\n    \"title\": \"API CRUD\",\n    \"description\": \"\",\n    \"version\": \"2\"\n  },\n  \"basePath\": \"/tests/v2\",\n  \"defaultBackend\": {\n    \"url\": \"http://127.0.0.1:8198/v2/defaultBackend\",\n    \"type\": \"application/json\"\n  },\n  \"paths\": {\n    \"/defaults\": {\n      \"post\": {\n        \"request\": {},\n        \"response\": {}\n      }\n    }\n  }\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Test API",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");",
+									"tests[\"verify invoke url\"] = (data.url === \"http://127.0.0.1:8198/v2/defaultBackend\");",
+									"",
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"tests[\"verify processor\"] = (data.body.toCurrency === \"USD\" && !data.body.newField);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/v2/defaults",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic dGhlbmVhdGVsaWRlcHR1cmVhY2hpZ2h0OmMwNzlkYTkxM2ZkOWRmNzQxNzFkMWE2YWI0NGYzMTU5Yjk3MTE2NTE=",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Update API def",
+					"request": {
+						"url": "{{MGMT_ENDPOINT}}/mgmt/apis/tests/v2",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic dG9ueWY6dG9ueWY=",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\n{\n  \"info\":{\n    \"title\":\"API CRUD\",\n    \"description\":\"\",\n    \"version\":\"2\"\n  },\n  \"basePath\":\"/tests/v2\",\n  \"defaultBackend\":{\n    \"url\":\"http://127.0.0.1:8198/v2/defaultBackend\",\n    \"type\":\"application/json\"\n  },\n  \"paths\":{\n    \"/defaults\":{\n      \"post\":{\n        \"request\":{\n          \"processor\": \"new-processor.js\",\n          \"type\": \"application/json\"\n        },\n        \"response\":{\n        },\n        \"backend\":{\n          \"url\":\"http://127.0.0.1:8198/v2/customBackend\",\n          \"type\":\"application/json\"\n        }\n      }\n    }\n  }\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Upload processor script",
+					"request": {
+						"url": "{{MGMT_ENDPOINT}}/mgmt/apis/tests/v2/docs/new-processor.js",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic dG9ueWY6dG9ueWY=",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "session.input.readAsJSON(function(error, json) {\n    \n    var newData = {};\n    for (let elem in json) {\n        newData[elem] = json[elem];\n    }\n    newData.newField = \"added by request processor\";\n    session.output.write(newData);\n});"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Test updated API",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");",
+									"tests[\"verify processor\"] = (data.body.toCurrency === \"USD\" && data.body.newField);",
+									"tests[\"verify invoke url\"] = (data.url === \"http://127.0.0.1:8198/v2/customBackend\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/v2/defaults",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE API",
+					"request": {
+						"url": "{{MGMT_ENDPOINT}}/mgmt/apis/tests/v2",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic dG9ueWY6dG9ueWY=",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/mgmt/clients",
+			"description": "",
+			"item": [
+				{
+					"name": "POST  /mgmt/clients?mode=create",
+					"request": {
+						"url": {
+							"raw": "{{MGMT_ENDPOINT}}/mgmt/clients?mode=create",
+							"host": [
+								"{{MGMT_ENDPOINT}}"
+							],
+							"path": [
+								"mgmt",
+								"clients"
+							],
+							"query": [
+								{
+									"key": "mode",
+									"value": "create",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/xml",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic dG9ueWY6dG9ueWY=",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{a: 12345}"
+						},
+						"description": "Generate client_id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /mgmt/clients",
+					"request": {
+						"url": "{{MGMT_ENDPOINT}}/mgmt/clients",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/xml",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic dG9ueWY6dG9ueWY=",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{a: 12345}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "GET /mgmt/clients/{clientid}",
+					"request": {
+						"url": "{{MGMT_ENDPOINT}}/mgmt/clients/super-tester-1234567890",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/xml",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic dG9ueWY6dG9ueWY=",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{a: 12345}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "[NEG] Access Denied",
+					"request": {
+						"url": {
+							"raw": "{{MGMT_ENDPOINT}}/mgmt/clients?mode=create",
+							"host": [
+								"{{MGMT_ENDPOINT}}"
+							],
+							"path": [
+								"mgmt",
+								"clients"
+							],
+							"query": [
+								{
+									"key": "mode",
+									"value": "create",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/xml",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic dG9ueWY6dG9ueWY=",
+								"description": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{a: 12345}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

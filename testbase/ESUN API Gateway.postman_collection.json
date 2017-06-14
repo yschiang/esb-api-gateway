@@ -1,0 +1,1563 @@
+{
+	"variables": [],
+	"info": {
+		"name": "ESUN API Gateway",
+		"_postman_id": "6ea3aab6-0cf1-8d24-00f3-587946726488",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/assembly",
+			"description": "",
+			"item": [
+				{
+					"name": "get to post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method (from GET to POST)\"] = (data.httpMethod === \"POST\");",
+									"",
+									"tests[\"verify processor\"] = (data.body.field === \"dummy\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/assembly/get2post",
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "processor json-xml-bridge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke content-type\"] = (data.response.headers['Content-Type'] === \"application/xml\");",
+									"tests[\"verify invoke method\"] = (data.response['http-method'] === \"POST\");",
+									"",
+									"tests[\"verify processor\"] = (data.response.body.Request.toCurrency === \"USD\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/assembly/json-xml-bridge",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/authapp",
+			"description": "",
+			"item": [
+				{
+					"name": "auth-allow-all",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke body\"] = (data.body.amount === 10000);",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/authapp/allow-all",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "limited-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "auth-allow-get-denied",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 401\"] = responseCode.code === 401;",
+									"tests[\"Error Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 401);",
+									"tests[\"verify error status\"] = (data.error.status === \"Unauthorized\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/authapp/allow-get",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "limited-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "auth-allow-get-allowed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke body\"] = (data.body == \"\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"GET\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/authapp/allow-get",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "limited-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/defaults",
+			"description": "Support defaults.",
+			"item": [
+				{
+					"name": "defaults-post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/parameterized/abc/parts/12345",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "defaults-get",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body === \"\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"GET\");",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/defaults",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "defaults-put",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke headers\"] = (data.httpMethod === \"PUT\");",
+									"tests[\"verify invoke method\"] = (data.body.toCurrency === \"USD\");",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/defaults",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/error",
+			"description": "",
+			"item": [
+				{
+					"name": "custom backend failure handler",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Error Status code is 500\"] = responseCode.code === 500;",
+									"tests[\"Error Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Error custom code is 500\"] = data.error.code == 500;",
+									"tests[\"Error custom status is Error\"] = data.error.status == \"Error\";",
+									"tests[\"Error custom code\"] = data.error.message == \"Backend service failure.\";",
+									"tests[\"Error custom details\"] = typeof data.details == \"object\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/backend/custom",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "xml error response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 500\"] = responseCode.code === 500;",
+									"tests[\"HTTP Content-Type is XML\"] = postman.getResponseHeader(\"Content-Type\") === \"application/xml\";",
+									"",
+									"",
+									"var data = xml2Json(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === \"500\");",
+									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");",
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/type/xml",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "json error response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 500\"] = responseCode.code === 500;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 500);",
+									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/type/json",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "route api notfound (404 Not Found)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 404\"] = responseCode.code === 404;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 404);",
+									"tests[\"verify error status\"] = (data.error.status === \"Not Found\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/notfound",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "route verb notfound (404 Not Found)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 404\"] = responseCode.code === 404;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 404);",
+									"tests[\"verify error status\"] = (data.error.status === \"Not Found\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/routes/verb-not-found",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "route path notfound (404 Not Found)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 404\"] = responseCode.code === 404;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 404);",
+									"tests[\"verify error status\"] = (data.error.status === \"Not Found\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/path-notfound",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "auth unauthorized-app (401 Unauthorized)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 401\"] = responseCode.code === 401;",
+									"tests[\"Error Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 401);",
+									"tests[\"verify error status\"] = (data.error.status === \"Unauthorized\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/unauthorized-app",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "limited-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "schema-validation request error (400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 400\"] = responseCode.code === 400;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 400);",
+									"tests[\"verify error status\"] = (data.error.status === \"Bad Request\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/schema-validation/json",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"invalid-data\": true\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "schema-validation response error (500 Internal Server Error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 500\"] = responseCode.code === 500;",
+									"tests[\"HTTP Content-Type is XML\"] = postman.getResponseHeader(\"Content-Type\") === \"application/xml\";",
+									"",
+									"var data = xml2Json(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code == \"500\");",
+									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/schema-validation/xml",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/xml",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<request>\n\t<toCurrency>USD</toCurrency>\n\t<fromCurrency>TWD</fromCurrency>\n\t<amount>10000</amount>\n</request>"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "processor request (500 Internal Server Error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 500\"] = responseCode.code === 500;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 500);",
+									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/processor/request",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "processor response (500 Internal Server Error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 500\"] = responseCode.code === 500;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 500);",
+									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/error/processor/response",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/parameterized",
+			"description": "",
+			"item": [
+				{
+					"name": "parameterized _ 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");",
+									"tests[\"verify invoke body\"] = (data.body.param1 === \"abc\" && data.body.param2 === \"12345\");",
+									"tests[\"verify invoke url\"] = (data.url == \"http://127.0.0.1:8198/backend/foo=abc&bar=12345\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/parameterized/abc/parts/12345",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/processors",
+			"description": "",
+			"item": [
+				{
+					"name": "gatewayscript processor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");",
+									"",
+									"tests[\"verify processor - request\"] = (data.body.toCurrency === \"USD\" && data.body.newField === \"added by request processor\");",
+									"tests[\"verify processor - response\"] = (data.newField === \"added by response processor\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/processors/usr/gatewayscript",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "stylesheet processor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is XML\"] = postman.getResponseHeader(\"Content-Type\") === \"application/xml\";",
+									"",
+									"",
+									"var data = xml2Json(responseBody);",
+									"",
+									"tests[\"verify invoke content-type\"] = (data['processor-transformed-output'].response.headers['Content-Type'] === \"application/xml\");",
+									"tests[\"verify invoke method\"] = (data['processor-transformed-output'].response['http-method'] === \"POST\");",
+									"",
+									"tests[\"verify processor - request\"] = (",
+									"    data['processor-transformed-output'].response.body['processor-transformed-input'].request.toCurrency === \"USD\" &&",
+									"    data['processor-transformed-output'].response.body['processor-transformed-input'].newField === \"added by request processor\"",
+									");",
+									"",
+									"tests[\"verify processor - response\"] = (",
+									"    data['processor-transformed-output'].newField === \"added by response processor\"",
+									");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/processors/usr/stylesheet",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<request>\n\t<toCurrency>USD</toCurrency>\n\t<fromCurrency>TWD</fromCurrency>\n\t<amount>10000</amount>\n</request>"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/routes",
+			"description": "Support defaults.",
+			"item": [
+				{
+					"name": "defaults-post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/defaults",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "defaults-get",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body === \"\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"GET\");",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/defaults",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "defaults-put",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke headers\"] = (data.httpMethod === \"PUT\");",
+									"tests[\"verify invoke method\"] = (data.body.toCurrency === \"USD\");",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/defaults",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/schema-validation",
+			"description": "",
+			"item": [
+				{
+					"name": "validate json request and response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/schema-validation/json",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "json request invalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 400\"] = responseCode.code === 400;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 400);",
+									"tests[\"verify error status\"] = (data.error.status === \"Bad Request\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/schema-validation/json/invalid-request",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"invalid-data\": true\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "json response invalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 400\"] = responseCode.code === 500;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === 500);",
+									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/schema-validation/json/invalid-response",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "validate xml request and response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is XML\"] = postman.getResponseHeader(\"Content-Type\") === \"application/xml\";",
+									"",
+									"",
+									"var data = xml2Json(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.response.body.request.toCurrency === \"USD\");",
+									"tests[\"verify invoke content-type\"] = (data.response.headers['Content-Type'] === \"application/xml\");",
+									"tests[\"verify invoke method\"] = (data.response['http-method'] === \"POST\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/schema-validation/xml",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/xml",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<request>\n\t<toCurrency>USD</toCurrency>\n\t<fromCurrency>TWD</fromCurrency>\n\t<amount>10000</amount>\n</request>"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "xml request invalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 400\"] = responseCode.code === 400;",
+									"tests[\"HTTP Content-Type is XML\"] = postman.getResponseHeader(\"Content-Type\") === \"application/xml\";",
+									"",
+									"",
+									"var data = xml2Json(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === \"400\");",
+									"tests[\"verify error status\"] = (data.error.status === \"Bad Request\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");",
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/schema-validation/xml",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/xml",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<request>\n\t<toCurrency>USD</toCurrency>\n\t<fromCurrency>TWD</fromCurrency>\n\t<!--<amount>10000</amount>-->\n</request>"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "xml response invalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 500\"] = responseCode.code === 500;",
+									"tests[\"HTTP Content-Type is XML\"] = postman.getResponseHeader(\"Content-Type\") === \"application/xml\";",
+									"",
+									"",
+									"var data = xml2Json(responseBody);",
+									"",
+									"tests[\"verify error code\"] = (data.error.code === \"500\");",
+									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.error.message !== \"\");",
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/schema-validation/xml/invalid-response",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/xml",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<request>\n\t<toCurrency>USD</toCurrency>\n\t<fromCurrency>TWD</fromCurrency>\n\t<amount>10000</amount>\n</request>"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/verbs",
+			"description": "",
+			"item": [
+				{
+					"name": "support post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/verbs",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "support get",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body === \"\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"GET\");",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/assembly/get2post",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "support put",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke body\"] = (data.body.toCurrency === \"USD\");",
+									"tests[\"verify invoke headers\"] = (data.httpMethod === \"PUT\");",
+									"tests[\"verify invoke method\"] = (data.body.toCurrency === \"USD\");",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/verbs",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

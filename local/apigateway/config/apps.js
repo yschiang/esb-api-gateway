@@ -26,7 +26,6 @@ module.exports = {
 
     "super-tester-1234567890": {
         "description": "tester with all permissions",
-        "organization": "org_seq_no2",
         "authorizedResources": {
             "/tests": "*",
             "/tests/v2": "*",
@@ -35,12 +34,13 @@ module.exports = {
         "acl": [
             "0.0.0.0/0",
             "172.17.0.0/24"
-        ]
+        ],
+        "organizationId": "org_seq_no2",
+        "clientIdNo": "client_001"
     },
 
     "limited-tester-1234567890": {
         "description": "tester with limited permissions",
-        "organization": "org_seq_no1",
         "authorizedResources": {
             "/tests": {
                 "/authapp/allow-all": "*",
@@ -52,6 +52,8 @@ module.exports = {
         "acl": [
             "0.0.0.0/0",
             "172.17.0.0/24"
-        ]
+        ],
+        "organizationId": "org_seq_no2",
+        "clientIdNo": "client_002"
     }
 };

@@ -1,12 +1,12 @@
 module.exports = [
 
     {
-        "sn": "org_seq_no1",
-        "name": "limited-testers"
+        "id": "org_seq_no1",
+        "name": "TS0069"
     },
 
     {
-        "sn": "org_seq_no2",
+        "id": "org_seq_no2",
         "name": "super-testers"
     }
 

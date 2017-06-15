@@ -119,8 +119,6 @@ function uploadFile(romaDirPath, filename, buf, callback) {
         sslClientProfile: sslProfile, // check this must exist in domain config 
         data: JSON.stringify(req)
     };
-
-    console.error ("/" + options.data + "/");
     
     urlopen.open(options, function(error, response) {
         if (error) {
@@ -132,7 +130,6 @@ function uploadFile(romaDirPath, filename, buf, callback) {
         var responseStatusCode = response.statusCode;
         var responseReasonPhrase = response.reasonPhrase;
 
-                console.error ("URL =  " + romaUrl + " >>> " + JSON.stringify(response));
         // reading response data
         response.readAsJSON(function(error, json){
             if (error){

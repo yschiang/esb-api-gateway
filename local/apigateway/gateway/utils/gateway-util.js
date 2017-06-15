@@ -9,8 +9,19 @@ var ContentType = {
 
 var SensitiveDataMask = {
     maskClientId: function (str) {
-        var re = /([\?&])client_id=(.+)/i;
-        return str.replace(re, '$1client_id=#######');
+
+        function replacer(match, p1, p2, offset, string) {
+            let toMask = p2.substring(4);
+            let stars = '';
+            for (let i=0; i<toMask.length; ++i) {
+                stars += '*';
+            }
+
+            let maskedClient = 'client_id=' + p2.substring(0, 4) + stars;
+            return p1 + maskedClient;
+        }
+        var re = /([\?&])client_id=([^#&\?]+)/;
+        return str.replace(re, replacer);
     }
 }
 

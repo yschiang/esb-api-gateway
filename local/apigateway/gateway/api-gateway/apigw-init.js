@@ -6,15 +6,18 @@ var env = require('../settings').ENV,
     serviceVars = require('service-metadata'),
     headerMetadata = require('header-metadata'),
     url = require('url'),
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole;
+
+	GatewyUtils = require('./apigw-util'),
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+    InternalVars = GatewyUtils.InternalVars;
 
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.INIT; // 'INIT'
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
-
+var internalVars = new InternalVars();
 
 
 /** on enter */
@@ -26,6 +29,54 @@ gwState.onEnter();
 var apis = require(env['api.index']).apis;
 var fullPath = url.parse(serviceVars.URLIn).pathname;	// "/fx/rates"
 var basePath;
+
+let sessionVars = {
+    "gtid": serviceVars.globalTransactionId,
+    "system": {
+        "gtid": serviceVars.globalTransactionId,
+    },
+
+    "api": {
+        "name": null,   // to be set on route
+        "root": null,   // basepath; to be set inner this file
+        "version": null,// to be set on route
+        "endpointAddress": serviceVars.localServiceAddress, // to be set on route
+        "path": null, // to be set on route
+        "operation": serviceVars.protocolMethod.toLowerCase()
+    },
+    "client": {
+        "orgId": null, // to be set on authapp
+        "appId": null, // to be set inner this file
+        "ip": serviceVars.transactionClient,
+        "forwardedFor": headerMetadata.original.get('X-Forwarded-For')? headerMetadata.original.get('X-Forwarded-For') : ""
+    },
+    "request": {
+        "url": serviceVars.URLIn,
+        "uri": serviceVars.URI,
+        "verb": serviceVars.protocolMethod.toLowerCase(),
+        "path": null, // to be set inner this file
+        "headers": require('header-metadata').original.get(),
+        "parameters": null,
+        "body": null
+    },
+    "message": {
+        "statusCode": null,
+        "statusReason": null,
+        "headers": null,
+        "body": null
+    },
+    //"error": null
+};
+
+let vars = {
+    //"session": sessionVars,
+    "api": sessionVars.api,
+    "system": sessionVars.system,
+    "request": sessionVars.request,
+    "client": sessionVars.client,
+    "message": sessionVars.message,
+    //"error": sessionVars.error
+};
 
 gwState.debug ("Looking up API indexing file.");
 for (let api in apis) {
@@ -45,41 +96,25 @@ for (let api in apis) {
     }
 }
 
-let vars = {
-    "basePath": "",
-    "path": "",
-    "operation": serviceVars.protocolMethod.toLowerCase(),
-    "definitionDir": "",
-    "definitionModule": "",
-    "parameters": "",
-    "clientIp": "",
-    "clientId": "",
-    "clientForwardedBy": "",
-    "gtid": serviceVars.globalTransactionId
-};
-
-
 if (basePath) {
-    vars.basePath = basePath;
-    vars.path = fullPath.substring(basePath.length);	// "/rates" in URIin
-    vars.definitionDir = env['api.dir'] + basePath.substr(1).replace(/\//g, '.') + '/'; // /fx/v1 ==> local:///apis/fx.v1
-    vars.definitionModule = vars.definitionDir + env['api.metadata'];
+
+    sessionVars.api.root = basePath;
+    sessionVars.api.path = fullPath.substring(basePath.length);	// "/rates" in URIin
+    sessionVars.request.path = fullPath;
+
+    let definitionDir = env['api.dir'] + basePath.substr(1).replace(/\//g, '.') + '/'; // /fx/v1 ==> local:///apis/fx.v1
+    internalVars.setVar('definitionDir', definitionDir);
+    internalVars.setVar('definitionModule', definitionDir + env['api.metadata']);
+
 }
 
-// get originated clientIp
-var xForwardedFor = headerMetadata.original.get('X-Forwarded-For');
-vars.clientIp = xForwardedFor ? xForwardedFor : serviceVars.transactionClient;
-
-// get the requested intermidiary node
-vars.clientForwardedBy = serviceVars.transactionClient;
-
 // get clientId from query param "client_id" or header "X-APP-CLIENT-ID"
-var parsedURL = url.parse(serviceVars.URLIn, true);
-var clientId = parsedURL.query.client_id;
+let parsedURL = url.parse(serviceVars.URLIn, true);
+let clientId = parsedURL.query.client_id;
 if (!clientId) {
     clientId = headerMetadata.original.get(env['app.clientid.header']);
 }
-vars.clientId = clientId ? clientId : "";
+sessionVars.client.appId = clientId ? clientId : "";
 
 for (let n in vars) {
     _ctx.setVar(n, vars[n]);

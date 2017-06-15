@@ -20,16 +20,21 @@ var env = require('../settings').ENV,
 	serviceVars = require('service-metadata'),
 	headerMetadata = require('header-metadata'),
 	url = require('url'),
-	gwUtils = require('./apigw-util'),
-    GatewayState = gwUtils.GatewayState,
-    GatewayConsole = gwUtils.GatewayConsole,
-	Session = gwUtils.Session;
+	GatewyUtils = require('./apigw-util'),
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+	Session = GatewyUtils.Session,
+	InternalVars = GatewyUtils.InternalVars;
 
 const _console = new GatewayConsole(env['api.log.category']);
-//const _state = 'ROUTE';
 const _state = GatewayState.states.ROUTE;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
+
+var internalVars = new InternalVars();
+var sessionVars = new Session();
+var apiVars = sessionVars.api;
+var requestVars = sessionVars.request;
 
 /** on enter */
 gwState.onEnter();
@@ -41,7 +46,7 @@ gwState.onEnter();
 
 // Helpers used by this GatewayScript
 
-var definitionModule = _ctx.getVar('definitionModule');
+var definitionModule = internalVars.getVar('definitionModule');
 var defaults = {
 	"type": env["api.defaults.type"],	// "application/json"
 	"jsv": env["api.defaults.jsv"],	// "local:///apis/_common/json-schema.default.jsv",
@@ -50,11 +55,11 @@ var defaults = {
 };
 
 function getPath(file) {
-	return _ctx.getVar('definitionDir') + file;
+	return internalVars.getVar('definitionDir') + file;
 }
 
 function setVar(name, value) {
-	_ctx.setVar(name, value);
+	internalVars.setVar(name, value);
 }
 
 function getProcessor(v) {
@@ -82,16 +87,14 @@ function getSchema(v, type) {
 	}
 }
 
-let sess = new Session();
-
 // INPUT
 // URIin: "/fx/rates?client_id=123"
-var inBasePath = _ctx.getVar('basePath');				// "/fx"
-var inPath = _ctx.getVar('path');						// "/rates" in URIin
-var inVerb = _ctx.getVar('operation');					// "post" lowercase
+var inBasePath = sessionVars.api.root;					// "/fx"
+var inPath = sessionVars.api.path;					// "/rates" in URIin
+var inVerb = sessionVars.request.verb;					// "post" lowercase
 
 // MATCHED
-var basePath = _ctx.getVar('basePath');					// "/fx"
+var basePath = sessionVars.api.root;					// "/fx"
 var oneApi;												// API definition json object
 var oneResource;										// Resource definition json object
 var resourceName;     									// "/rates" from Resource definition
@@ -103,7 +106,8 @@ if (!basePath) {
 
 try {
 	oneApi = require(definitionModule).api;
-	_ctx.setVar('apiName', oneApi.info.title);
+	apiVars.name = oneApi.info.title;
+	apiVars.version = oneApi.info.version;
 } catch (e) {
 	gwState.abort(new Error("Couldn't locate definition for API [" + basePath + "]"), 500);
 	return;
@@ -132,7 +136,7 @@ for (let path in oneApi.paths) {
 			let re_2 = new RegExp(pathRegexStr);
 			matched = inPath.match(re_2); // ["/abc/def/1234567_890-11/xyz/kkkkkkkkkk","1234567_890-1","kkkkkkkkkk"]
 
-			// save the params in URI into var://context/apimgr/params
+			// save the params in URI into var://context/apiSession/_params
 			if (matched) {
 				let params = {};
 				for (let i=1; i<matched.length; i++) {
@@ -141,10 +145,12 @@ for (let path in oneApi.paths) {
 					let paramValue = matched[i];
 					params[paramName] = paramValue;
 				}
-				sess.parameters = params; //_ctx.setVar('parameters', params);
+				requestVars.parameters = params;
 			}
 		}
     }
+
+	
 
 	if (matched) {
 		let resource = oneApi.paths[path]; // the resource object
@@ -157,10 +163,13 @@ for (let path in oneApi.paths) {
 	}
 }
 
+// update session variables
+sessionVars.api = apiVars;
+sessionVars.request = requestVars;
+
 if (oneResource) {
 	// resourceName
-	_ctx.setVar('resourceName', resourceName);
-	gwState.info("API resource matched. (api ='" + _ctx.getVar('apiName') + "', resource='" + _ctx.getVar('resourceName') + "')");
+	gwState.info("API resource matched. (api='" + apiVars.root + "', resource='" + apiVars.operation.toUpperCase() + ' ' + apiVars.path + "')");
 
 	// backend
 	let backend = (oneResource.backend && oneResource.backend.url) ? oneResource.backend : oneApi.defaultBackend;
@@ -190,29 +199,29 @@ if (oneResource) {
 	// set backend url and content-type once determined
 	let replacementRe = /\$\(request\.parameters\.[a-zA-Z0-9-_]+\)/;
 	if (replacementRe.test(backendUrl)) { /* the specified backend url contains replacement params */
-		backendUrl = sess.replaceParameters(backendUrl, true /*do urlencode*/);
+		backendUrl = Session.replaceParameters(backendUrl, sessionVars.request.parameters, true /*do urlencode*/);
 	}
-	_ctx.setVar('backendUrl', backendUrl);
+	setVar('backendUrl', backendUrl);
 	serviceVars.setVar('var://service/routing-url', backendUrl);
 
-	_ctx.setVar('backendMethod', backendMethod);
+	setVar('backendMethod', backendMethod);
 	serviceVars.protocolMethod = backendMethod;
 
-	_ctx.setVar('backendType', backendType);
+	setVar('backendType', backendType);
 	//if (backendMethod == 'post' || backendMethod == 'put') {
 		headerMetadata.current.set('Content-Type', backendType);
 	//}
 
-	_ctx.setVar('backendErrorProcess', catchBackendError); // true | false
-	_ctx.setVar('backendErrorProcessor', backendErrorProcessor ? backendErrorProcessor : '');
+	setVar('backendErrorProcess', catchBackendError); // true | false
+	setVar('backendErrorProcessor', backendErrorProcessor ? backendErrorProcessor : '');
 
-	gwState.info("Set backend. (URL='" + backendUrl + "', type='" + backendType + ", method=" + backendMethod +  "')");
+	gwState.info("Set backend. (URL='" + backendUrl + "', type='" + backendType + "', method='" + backendMethod +  "')");
 
 	// apiType
 	let consumesType = oneResource.request.type ? oneResource.request.type : defaults.type;
 	let producesType = oneResource.response.type ? oneResource.response.type : defaults.type;;
-	_ctx.setVar('consumesType', consumesType);
-	_ctx.setVar('producesType', producesType);
+	setVar('consumesType', consumesType);
+	setVar('producesType', producesType);
 
 	// create XML for conditional action
 	let xmlstr = '<APISetting>';
@@ -234,35 +243,35 @@ if (oneResource) {
 		gwState.info("Set schema for request validation. (schema='" + p +"')");
 	}
 	xmlstr += '<RequestSchema>' + p + '</RequestSchema>';
-	_ctx.setVar('requestSchema', p);
+	setVar('requestSchema', p);
 
 	// file: response schema (by default using backend type)
 	v = oneResource.response.schema;
 	p = getSchema(v, backendType);
 	gwState.info("Set schema for response validation. (schema='" + p + "')");
 	xmlstr += '<ResponseSchema>' + p + '</ResponseSchema>';
-	_ctx.setVar('responseSchema', p);
+	setVar('responseSchema', p);
 
 	// file: request processor (by default using request consumes type)
 	v = oneResource.request.processor;
 	p = getProcessor(v);
 	gwState.info("Set processor for request. (processor='" + p + "')");
 	xmlstr += '<RequestProcessor>' + p + '</RequestProcessor>';
-	_ctx.setVar('requestProcessor', p);
+	setVar('requestProcessor', p);
 
 	// file: response processor (by default using backend type)
 	v = oneResource.response.processor;
 	p = getProcessor(v);
 	gwState.info("Set processor for response. (processor='" + p + "')");
 	xmlstr += '<ResponseProcessor>' + p + '</ResponseProcessor>';
-	_ctx.setVar('responseProcessor', p);
+	setVar('responseProcessor', p);
 
 	xmlstr += '</APISetting>';
 	session.output.write(xmlstr);
 
 } else {
 
-	gwState.abort(new Error("Requested operation not found for API (api='" + basePath + "',  operation='" + inVerb.toUpperCase() + " " + inPath + "')"), 404);
+	gwState.abort(new Error("Requested operation not found for API (api='" + basePath + "',  resource='" + inVerb.toUpperCase() + " " + inPath + "')"), 404);
 	return;
 }
 

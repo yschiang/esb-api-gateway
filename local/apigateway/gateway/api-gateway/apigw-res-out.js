@@ -7,13 +7,20 @@
 var env = require('../settings').ENV,
     serviceVars = require('service-metadata'),
     headers = require('header-metadata').current,
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole;
+    gwUtil = require('local:///gateway/utils/gateway-util.js'),
+    GatewyUtils = require('./apigw-util'),
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+    Session = GatewyUtils.Session,
+    InternalVars = GatewyUtils.InternalVars;
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.RES_OUT;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
+var sessionVars = new Session();
+var internalVars = new InternalVars();
+
 
 /** on enter */
 gwState.onEnter();
@@ -22,7 +29,7 @@ let analyticsCtx = session.createContext('response_out_analytics_full');
 let analyticsData = {
     "state": "response_out",
     "tid": serviceVars.transactionId,
-    "gtid": _ctx.getVar('gtid'),
+    "gtid": sessionVars.gtid,
     "datetime": new Date().toISOString(),
     "latency" : serviceVars.timeElapsed,
 
@@ -85,8 +92,8 @@ if (env['gateway.log.payload'] === true) {
 
 function setResponseContentType() {
     let produceContentType = function () {
-        if (_ctx.getVar('producesType')) {
-            return _ctx.getVar('producesType');
+        if (internalVars.getVar('producesType')) {
+            return internalVars.getVar('producesType');
         } else if (gwUtil.isXML(require('header-metadata').original.get('Content-Type'))) {
             return 'application/xml';
         } else {

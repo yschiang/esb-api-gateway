@@ -1,5 +1,3 @@
-var Session = require('local:///apis/_common/session.js');
+var sess = require('local:///apis/_common/session.js');
 
-var request = new Session();
-
-session.output.write(request.parameters);
+session.output.write(sess.request.parameters);

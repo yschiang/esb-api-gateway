@@ -16,6 +16,8 @@ var _usrsParams = {
 
 // Internal params used by gateway
 var _sysParams = {
+    'session.context.name': 'apiSession',
+
     'api.index': 'local:///apis/_apis.index.js', 
     'api.index.bak': 'local:///apis/_apis.index.js.bak',
 

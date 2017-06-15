@@ -12,7 +12,7 @@ var env = require('../settings').ENV,
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.REQ_SCHEMAVAL;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 
 /** on enter */
 // gwState.onEnter();

@@ -6,15 +6,18 @@
  */
 var env = require('../settings').ENV,
     serviceVars = require('service-metadata'),
-    headers = require('header-metadata').original,
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole,
-    gwUtil = require('local:///gateway/utils/gateway-util.js');
+    utils = require('local:///gateway/utils/gateway-util.js'),
+	GatewyUtils = require('./apigw-util'),
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+    Session = GatewyUtils.Session;
+
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.REQ_IN;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
+var sessionVars = new Session();
 
 /** on enter */
 gwState.onEnter();
@@ -23,21 +26,25 @@ let analyticsCtx = session.createContext('request_in_analytics_full');
 let analyticsData = {
     "state": "request_in",
     "tid": serviceVars.transactionId,
-    "gtid": _ctx.getVar('gtid'),
+    "gtid": sessionVars.gtid,
 
     "datetime": new Date().toISOString(),
     "latency" : serviceVars.timeElapsed,
 
-    "method": _ctx.getVar('operation'),
-    "uri": gwUtil.maskClientId(serviceVars.URI),
-    "url": gwUtil.maskClientId(serviceVars.URLIn),
-    "path": _ctx.getVar('path'),
+    "client": {
+        "ip": sessionVars.client.ip
+    },
 
-    "localAddress" : serviceVars.localServiceAddress,
-    "clientIp": _ctx.getVar('clientIp'),
+    "request": {
+        "method": sessionVars.request.verb,
+        "path": sessionVars.request.path,
+        "endpoint" : sessionVars.request.endpointAddress,
 
+        "uri": utils.maskClientId(sessionVars.request.uri),
+        "url": utils.maskClientId(sessionVars.request.url)
+    },
     "message": {
-        "headers": headers.get(),
+        "headers": sessionVars.request.headers,
         "size": serviceVars.mpgw.requestSize
     }
 };

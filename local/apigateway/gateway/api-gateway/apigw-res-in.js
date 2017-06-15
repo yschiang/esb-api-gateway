@@ -7,13 +7,17 @@
 var env = require('../settings').ENV,
     serviceVars = require('service-metadata'),
     headers = require('header-metadata').current,
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole;
+    GatewyUtils = require('./apigw-util'),
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+    Session = GatewyUtils.Session;
+
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.RES_IN;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
+var sessionVars = new Session();
 
 // 2xx indicates success
 if (headers.statusCode.toString()[0] != '2') {
@@ -32,7 +36,7 @@ if (headers.statusCode.toString()[0] != '2') {
     let analyticsData = {
         "state": "response_in",
         "tid": serviceVars.transactionId,
-        "gtid": _ctx.getVar('gtid'),
+        "gtid": sessionVars.gtid,
         "datetime": new Date().toISOString(),
         "latency" : serviceVars.timeElapsed,
 

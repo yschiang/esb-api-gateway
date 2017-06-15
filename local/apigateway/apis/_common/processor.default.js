@@ -2,7 +2,7 @@ var serviceVars = require('service-metadata');
 var hm = require('header-metadata');
 var gwUtil = require('local:///gateway/utils/gateway-util.js');
 
-var ctx = session.name('apimgr');
+var ctx = session.name('apiSession');
 
 var direction = serviceVars.transactionRuleType;
 

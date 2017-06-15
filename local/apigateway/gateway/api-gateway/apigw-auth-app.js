@@ -21,16 +21,20 @@ Sample app
 */
 
 var env = require('../settings').ENV,
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole,
+	GatewyUtils = require('./apigw-util'),
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+	Session = GatewyUtils.Session,
 	util = require('util'),
 	netmask = require('local:///lib/netmask').Netmask;
 
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.APPAUTH;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
+var sessionVars = new Session();
+var clientVars = sessionVars.client;
 
 /** on enter */
 gwState.onEnter();
@@ -38,16 +42,16 @@ gwState.onEnter();
 // load apps.json where clientId represents an App
 var apps = require(env['config.clients.path']);	// local:///config/apps.js
 
-var clientId = _ctx.getVar('clientId');
-var clientIp = _ctx.getVar('clientIp');
+var clientId = sessionVars.client.appId;
+var clientIp = sessionVars.client.ip;
 
 var configFault = false; // the orgs-apis.js is not valid, return 500 when this is true
 var error;
 var decision = false;	// by default deny all
 
-var inApi = _ctx.getVar('basePath');
-var inPath = _ctx.getVar('path');
-var inOperation = _ctx.getVar('operation');
+var inApi = sessionVars.api.root;
+var inPath = sessionVars.api.path;
+var inOperation = sessionVars.request.verb;
 
 var accessApi = false;
 var accessPath = false;
@@ -65,7 +69,10 @@ do {
 		error = "Requested client is not an authorized application and rejected. (client_id='" + clientId + "')";
 		break;
 	}
-	gwState.debug("Organization identified by client app. (client='" + clientId + "')");
+
+	clientVars.orgId = app.organizationId;
+	sessionVars.client = clientVars;
+	gwState.debug("Organization identified by client app. (client='" + clientId + "', orgnization='"+ clientVars.orgId + "')");
 
 
 	// ACL check
@@ -124,7 +131,7 @@ do {
 	}
 
 	if (!accessApi || !allowedPaths) {
-		error = "Application access to the API is not granted. (api=" + inApi + ")";
+		error = "Application access to the API is not granted. (api='" + inApi + "')";
 		break;
 	}
 
@@ -149,7 +156,7 @@ do {
 	}
 
 	if (!accessPath || !allowedOperations) {
-		error = "Application access to the API/path is not granted. (api=" + inApi + ", path=" + inPath + ")";
+		error = "Application access to the API/path is not granted. (api='" + inApi + "', path='" + inPath + "')";
 		break;
 	}
 	// matched path, expect allowedOperations to be either "*" or an array containing allowed operations
@@ -172,7 +179,7 @@ do {
 	}
 
 	if (!accessOperation) {
-		error = "Application access to the API/path/operation is not granted. (api=" + inApi + ", path=" + inPath + ", operation=" + inOperation + ")";
+		error = "Application access to the API/path/operation is not granted. (api='" + inApi + "', path='" + inPath + "', operation='" + inOperation + "')";
 		break;
 	}
 
@@ -200,7 +207,7 @@ if (!decision) {
 // granted, 
 
 // logging for noticing the API access
-gwState.info("Access granted. (api=" + inApi + ", path=" + inPath + ", operation=" + inOperation + ")");
+gwState.info("Access granted. (api='" + inApi + "', path='" + inPath + "', operation='" + inOperation + "')");
 
 /** on exit; move state */
 gwState.onExit(true);

@@ -15,7 +15,7 @@ let authorized = mgmtCtx.getVar('aaa') == 'approved';
 if (!authorized) {
     let message = "User is not permitted to access the specified mgmt APIs";
     apiError = new APIError(message, 401);
-    apiError.setServiceErrorContext(mgmtCtx);
+    apiError.setMgmtServiceErrorContext(mgmtCtx);
     apiError.httpError(true);
     session.reject(message);
     return;
@@ -47,7 +47,7 @@ if (!mod) {
     // not found
     let message = "API endpoint " + urlparts.path + " not found";
     apiError = new APIError(message, 404);
-    apiError.setServiceErrorContext(mgmtCtx);
+    apiError.setMgmtServiceErrorContext(mgmtCtx);
     apiError.httpError(true);
     session.reject(message);
     return;

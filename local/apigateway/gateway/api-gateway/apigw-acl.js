@@ -13,13 +13,16 @@ var env = require('../settings').ENV,
 	serviceVars = require('service-metadata'),
     headerMetadata = require('header-metadata'),
 	netmask = require('local:///lib/netmask').Netmask,	
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole;
+	GatewyUtils = require('./apigw-util'),
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+	Session = GatewyUtils.Session;
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.ACL;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
+var sessionVars = new Session();
 
 /** on enter */
 gwState.onEnter();
@@ -31,8 +34,7 @@ var rules = require('local:///config/acl.js').acl;
 var whiteMask = rules.allowed;
 var blackMask = rules.denied;
 
-var xForwardedFor = headerMetadata.original.get('X-Forwarded-For');
-var clientip = xForwardedFor ? xForwardedFor : serviceVars.transactionClient;
+var clientip = sessionVars.client.ip;
 
 var denied = false; // default deny  none
 var allowed = true;	// default allow all

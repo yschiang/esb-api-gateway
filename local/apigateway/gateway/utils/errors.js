@@ -66,7 +66,7 @@ let GWError = (function() {
             return defaults;
         };
 
-        GWError.prototype.setServiceErrorContext = function (ctx) {
+        GWError.prototype.setMgmtServiceErrorContext = function (ctx) {
             let e = this.errorObject().error;
             ctx.setVar('result', 'error');
             ctx.setVar('error-status', e.status);
@@ -75,6 +75,21 @@ let GWError = (function() {
             if (e.info) {
                 ctx.setVar('error-info', e.info);
             }
+            return true;
+        };
+
+        GWError.prototype.setServiceErrorContext = function (ctx) {
+
+            let e = this.errorObject().error;
+            let error = {
+                'result': 'error',
+                'status': e.status,
+                'message': e.message,
+                'code': e.code,
+                'info': e.info ? e.info : ''
+            };
+
+            ctx.setVar('error', error);
             return true;
         };
 

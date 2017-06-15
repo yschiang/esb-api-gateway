@@ -427,7 +427,7 @@ exports.api =
           "type":"application/json"
         },
         "backend": {
-          "url":"http://127.0.0.1:8198/backend/foo=$(request.parameters.param1)&bar=$(request.parameters.param2)"
+          "url":"http://127.0.0.1:8198/backend/?foo=$(request.parameters.param1)&bar=$(request.parameters.param2)"
         }
       }
     }

@@ -4,9 +4,10 @@
  * 
  * @version
  * 2017/03/27 Added param for suppressing prependState in gateway console log.
+ * 2017/06/15 Added Session and InternalVars classes.
  */
 
-let CTX_NAME = 'apimgr';
+let CTX_NAME = 'apiSession';
 
 var GatewayConsole = function() {
 
@@ -181,9 +182,10 @@ var GatewayState = function() {
         abort.call(this, arguments);
     }
 
+/*
     GatewayState.prototype.logAnalytics = function(endpoint, log, payloadBuffer, resolveCb) {
 
-        let tid = this._ctx.getVar('gtid');
+        let tid = this._ctx.getVar('session').gtid;
 
         let options = {
             target: endpoint, //'http://127.0.0.1:8020/_log/analytics/full',
@@ -219,6 +221,7 @@ var GatewayState = function() {
         });
 
     }
+    */
 
     /**
      * Get current state string
@@ -261,7 +264,7 @@ function abort() {
         gwCtx = _this.context();
     } else {
         _arguments = arguments;
-        gwCtx = session.name('apimgr');
+        gwCtx = session.name('apiSession');
     }
 
     let apiError = require('local:///gateway/utils/errors').GWError;
@@ -286,6 +289,7 @@ function abort() {
     let e = new apiError(message, code, status, info);
     e.setServiceErrorContext(gwCtx);
     session.reject(message);
+
     return e.errorObject();
 }
 
@@ -318,45 +322,75 @@ var UserDefinedModule = function() {
     return UserDefinedModule;
 }();
 
+
 var Session = function() {
-    var Session = function () {
-        this._ctx = session.name('apimgr');
-        this._parameters = this._ctx ? this._ctx.getVar("parameters") : null;
+
+    function Session() {
+
+        this._ctx = session.name('apiSession');
+
+        this._sessionVars = [
+            "api",
+            "error",
+            "system",
+            "request",
+            "client",
+            "message"
+        ];
+
+        for (let i=0; i<this._sessionVars.length; ++i) {
+            Object.defineProperty(this, this._sessionVars[i], {
+                get: function() {
+                    return this._ctx.getVar(this._sessionVars[i]);
+                },
+                set: function(value) {
+                    this._ctx.setVar(this._sessionVars[i], value);
+                }
+            });
+        }
+
     }
 
-    Object.defineProperty(Session.prototype, 'parameters', {
-        get: function() {
-            return this._parameters;
-        },
-        set: function(params) {
-            this._parameters = params;
-            this._ctx.setVar("parameters", params);
-        }
-    });
-
-    Session.prototype.replaceParameters = function (input, urlencode) {
+    // static method
+    Session.replaceParameters = function (input, params, urlencode) {
         let ret = input;
-        for (let param in this._parameters) {
+        for (let param in params) {
             // match $(request.parameters.[param])
             // urlencode to the backend url
             let toMatch = '$(request.parameters.' + param + ')';
             let splits = ret.split(toMatch);
             if (splits.length == 2) {
-                let replacement = urlencode ? encodeURI(this._parameters[param]) : this._parameters[param];
+                let replacement = urlencode ? encodeURI(params[param]) : params[param];
                 ret = splits[0] + replacement + splits[1];
             }
         }
         return ret;
     }
 
-    return Session;
 
+    return Session;
 }();
 
+var InternalVars = function() {
 
+    function InternalVars() {
+        this._ctx = session.name('apiSession');
+    }
+
+    InternalVars.prototype.setVar = function(name, value) {
+        this._ctx.setVar('_' + name, value);
+    }
+
+    InternalVars.prototype.getVar = function(name) {
+        return this._ctx.getVar('_' + name);
+    }
+
+    return InternalVars;
+}();
 
 exports.GatewayState = GatewayState;
 exports.GatewayConsole = GatewayConsole;
 exports.abort = abort;
 exports.UserDefinedModule = UserDefinedModule;
 exports.Session = Session;
+exports.InternalVars = InternalVars;

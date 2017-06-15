@@ -5,7 +5,7 @@ function abort(message, code, status, info) {
     let c = code ? code : 202; // defaults to 202 Accepted when error
     let e = new apiError(message, c, status, info);
     let mgmtCtx = session.name('mgmtMgr') || session.createContext('mgmtMgr');
-    e.setServiceErrorContext(mgmtCtx);
+    e.setMgmtServiceErrorContext(mgmtCtx);
     session.reject(message);
     return e.errorObject();
 }

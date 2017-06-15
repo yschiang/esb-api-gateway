@@ -13,16 +13,20 @@ var env = require('../settings').ENV,
     hm = require('header-metadata'),
     urlparts = require('url').parse(serviceVars.URLIn, true),
     APIError = require('local:///gateway/utils/errors').GWError,
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole,
-    UserDefinedModule = require('./apigw-util').UserDefinedModule,
-    gwUtil = require('local:///gateway/utils/gateway-util.js');
-
+    gwUtil = require('local:///gateway/utils/gateway-util.js'),
+    GatewyUtils = require('./apigw-util'),
+    UserDefinedModule = GatewyUtils.UserDefinedModule,
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+    Session = GatewyUtils.Session,
+    InternalVars = GatewyUtils.InternalVars;
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.ERROR;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
+var sessionVars = new Session();
+var internalVars = new InternalVars();
 
 const OUTPUT_TYPE = {
     'XML': 0,
@@ -32,14 +36,15 @@ const OUTPUT_TYPE = {
 /** on enter */
 gwState.onEnter();
 
-let errorSet = _ctx.getVar('result') == 'error'; // where the error is triggered by explicit gwState.abort()
+let errorSet = sessionVars.error; // where the error is triggered by explicit gwState.abort()
 let apiError;
 
 if (errorSet) {
-    let status = _ctx.getVar('error-status');
-    let message = _ctx.getVar('error-message');
-    let code = _ctx.getVar('error-code');
-    let info = _ctx.getVar('error-info');
+    let error = sessionVars.error;
+    let status = error.status;
+    let message = error.message;
+    let code = error.code;
+    let info = error.info;
 
     apiError = new APIError(message, code, status, info);
 } else {
@@ -79,28 +84,33 @@ if (errorSet) {
 }
 
 // log
-var logMsg = {
+var analyticsData = {
     "state": "error",
-    "globalTransactionId": serviceVars.globalTransactionId,
-    "time": new Date().getTime(),
+    "tid": serviceVars.transactionId,
+    "gtid": sessionVars.gtid,
+    "datetime": new Date().toISOString(),
     "latency": serviceVars.timeElapsed,
 
-    "clientIp" : _ctx.getVar('clientIp'),
-    "clientId":  _ctx.getVar('clientId'),
+    "client": {
+        "ip": sessionVars.client.ip,
+        "orgId": sessionVars.client.orgId,
+        "appId": sessionVars.client.appId
+    },
 
-    "headers":  hm.current.headers,
-    "size": serviceVars.mpgw.responseSize ,
+    "message": {
+        "headers": hm.current.get(),
+        "size": serviceVars.mpgw.responseSize
+    },
     "error": apiError.errorObject()
 };
-gwState.notice(JSON.stringify(logMsg), false);
-
+gwState.notice(JSON.stringify(analyticsData), false);
 
 
 // determine error ourput content-type
 let outputType;
-if (_ctx.getVar('producesType')) {
+if (internalVars.getVar('producesType')) {
     // product error response based on user-set produces type
-    outputType = gwUtil.isXML(_ctx.getVar('producesType')) ? OUTPUT_TYPE.XML : OUTPUT_TYPE.JSON;
+    outputType = gwUtil.isXML(internalVars.getVar('producesType')) ? OUTPUT_TYPE.XML : OUTPUT_TYPE.JSON;
 } else {
     // otherwise based on request content-type
     outputType = gwUtil.isXML(hm.original.get('Content-Type')) ? OUTPUT_TYPE.XML : OUTPUT_TYPE.JSON;
@@ -109,41 +119,42 @@ if (_ctx.getVar('producesType')) {
 
 // session error output
 if (gwState.onErrorState() == GatewayState.states.BACKEND &&
-    _ctx.getVar('backendErrorProcess')) {
+    internalVars.getVar('backendErrorProcess')) {
 
     let handlerFn;
     let errorOutput;
 
-    if (_ctx.getVar('backendErrorProcessor')) {
-        // allow user-custom backend error
-        try {
-            let handlerFn = UserDefinedModule.load(_ctx.getVar('definitionDir'), _ctx.getVar('backendErrorProcessor'));
-            if (typeof handlerFn == 'function') {
-                handlerFn(session.input, apiError, function (error, output) {
+    // allow user-custom backend error
+    try {
+        let handlerFn = UserDefinedModule.load(
+                internalVars.getVar('definitionDir'), 
+                internalVars.getVar('backendErrorProcessor'));
 
-                    if (error) {
+        if (typeof handlerFn == 'function') {
+            handlerFn(session.input, apiError, function (error, output) {
 
-                        // fall back to unknown error
-                        apiError = new APIError();
-                        errorOutput = produceErrorOutput(apiError);
-                    } else {
+                if (error) {
 
-                        // user-defined error function completes. output should already be generated within that routine
-                        errorOutput = output;
-                    }
-                    onExit(apiError, errorOutput);
-                });
-            } else {
-                errorOutput = produceErrorOutput(apiError);;
+                    // fall back to unknown error
+                    apiError = new APIError();
+                    errorOutput = produceErrorOutput(apiError);
+                } else {
+
+                    // user-defined error function completes. output should already be generated within that routine
+                    errorOutput = output;
+                }
                 onExit(apiError, errorOutput);
-            }
-
-        } catch (e) {
-            gwState.error(e.stack);
-            // fall back to default handler
-            errorOutput = produceErrorOutput(apiError);
+            });
+        } else {
+            errorOutput = produceErrorOutput(apiError);;
             onExit(apiError, errorOutput);
         }
+
+    } catch (e) {
+        gwState.error(e.stack);
+        // fall back to default handler
+        errorOutput = produceErrorOutput(apiError);
+        onExit(apiError, errorOutput);
     }
 
 } else {

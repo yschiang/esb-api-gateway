@@ -7,13 +7,19 @@
 var env = require('../settings').ENV,
     serviceVars = require('service-metadata'),
     headers = require('header-metadata').current,
-    GatewayState = require('./apigw-util').GatewayState,
-    GatewayConsole = require('./apigw-util').GatewayConsole;
+    GatewyUtils = require('./apigw-util'),
+    GatewayState = GatewyUtils.GatewayState,
+    GatewayConsole = GatewyUtils.GatewayConsole,
+    Session = GatewyUtils.Session,
+    InternalVars = GatewyUtils.InternalVars;
 
 const _console = new GatewayConsole(env['api.log.category']);
 const _state = GatewayState.states.REQ_OUT;
-var gwState = new GatewayState(_state, _console, 'apimgr', 'gatewayState');
+var gwState = new GatewayState(_state, _console, 'apiSession', 'gatewayState');
 var _ctx = gwState.context();
+var sessionVars = new Session();
+var internalVars = new InternalVars();
+
 
 /** on enter */
 gwState.onEnter();
@@ -22,26 +28,32 @@ let analyticsCtx = session.createContext('request_out_analytics_full');
 let analyticsData = {
     "state": "request_out",
     "tid": serviceVars.transactionId,
-    "gtid": _ctx.getVar('gtid'),
+    "gtid": sessionVars.gtid,
     "datetime": new Date().toISOString(),
     "latency" : serviceVars.timeElapsed,
 
-    "apiName" : _ctx.getVar('apiName'),
-    "basePath": _ctx.getVar('basePath'),
-    "resourceName": _ctx.getVar('resourceName'),
-    "backend" : serviceVars.routingUrl,
+    "api": {
+        "name": sessionVars.api.name,
+        "version": sessionVars.api.version,
+        "root": sessionVars.api.root,
+        "path": sessionVars.api.path 
+    },
+
+    "client": {
+        "orgId": sessionVars.client.orgId,
+        "appId": sessionVars.client.appId
+    },
 
     "message": {
-        "headers": headers.get()
-        //"size": 
-        //"body":
+        "url": serviceVars.routingUrl,
+        "headers": headers.get(),
+        "method": internalVars.getVar('backendMethod')
+        //"size": "",
+        //"body": ""
     }
 };
 
 if (env['gateway.log.payload'] === true) {
-
-    // log for analytics (to remote Splunk)
-    gwState.notice(JSON.stringify(analyticsData), false);
 
     // log for full analytics
     new Promise(function(resolve, reject) {
@@ -50,6 +62,10 @@ if (env['gateway.log.payload'] === true) {
             if (error) {
                 reject("Failed to read payload for analytics log.");
             } else {
+
+                // log for analytics (to remote Splunk)
+                gwState.notice(JSON.stringify(analyticsData), false);
+
                 resolve(buffer);
             }
             return;

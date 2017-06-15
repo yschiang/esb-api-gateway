@@ -182,6 +182,10 @@ var GatewayState = function() {
         abort.call(this, arguments);
     }
 
+    GatewayState.prototype.logAnalytics = function (data) {
+        (new GatewayConsole('apigw-analytics')).notice(data);
+    }
+
 /*
     GatewayState.prototype.logAnalytics = function(endpoint, log, payloadBuffer, resolveCb) {
 
@@ -254,14 +258,14 @@ var GatewayState = function() {
 //                    (message, code, status, info)
 // @return Error object
 function abort() {
-    let _this;
     let _arguments;
     let gwCtx;
+    let gwState;
 
     if (this instanceof GatewayState) {
-        _this = this;
         _arguments = arguments[0];
-        gwCtx = _this.context();
+        gwState = this;
+        gwCtx = gwState.context();
     } else {
         _arguments = arguments;
         gwCtx = session.name('apiSession');
@@ -274,7 +278,8 @@ function abort() {
 
         // (Exception, code, status)
         message = _arguments[0].message;
-        console.error (_arguments[0].stack);
+        gwState.error('abort: ' + _arguments[0].stack);
+
     } else if (typeof _arguments[0] === "string") {
 
         // (message, code, status, info)
@@ -285,7 +290,6 @@ function abort() {
     let status = _arguments[2];  //optional
     let info = _arguments[3];    //optional
 
-    
     let e = new apiError(message, code, status, info);
     e.setServiceErrorContext(gwCtx);
     session.reject(message);

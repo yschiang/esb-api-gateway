@@ -29,14 +29,14 @@ let analyticsCtx = session.createContext('response_out_analytics_full');
 let analyticsData = {
     "state": "response_out",
     "tid": serviceVars.transactionId,
-    "gtid": sessionVars.gtid,
+    "gtid": sessionVars.system.gtid,
     "datetime": new Date().toISOString(),
     "latency" : serviceVars.timeElapsed,
 
-    "httpResponseCode": headers.statusCode + ' ' + headers.reasonPhrase,
-
     "message": {
-        "headers": headers.get()
+        "headers": headers.get(),
+        "status": headers.statusCode,
+        "reason": headers.reasonPhrase
         //"size": 
         //"body":
     }
@@ -46,7 +46,7 @@ let analyticsData = {
 
 if (env['gateway.log.payload'] === true) {
     // log for analytics (to remote Splunk)
-    gwState.notice(JSON.stringify(analyticsData), false);
+    gwState.logAnalytics(JSON.stringify(analyticsData));
 
     // log for full analytics
     new Promise(function(resolve, reject) {
@@ -77,7 +77,7 @@ if (env['gateway.log.payload'] === true) {
 
 } else {
     // log for analytics (to remote Splunk)
-    gwState.notice(JSON.stringify(analyticsData), false);
+    gwState.logAnalytics(JSON.stringify(analyticsData));
 
     setResponseContentType();
 

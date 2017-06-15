@@ -83,29 +83,6 @@ if (errorSet) {
     }
 }
 
-// log
-var analyticsData = {
-    "state": "error",
-    "tid": serviceVars.transactionId,
-    "gtid": sessionVars.gtid,
-    "datetime": new Date().toISOString(),
-    "latency": serviceVars.timeElapsed,
-
-    "client": {
-        "ip": sessionVars.client.ip,
-        "orgId": sessionVars.client.orgId,
-        "appId": sessionVars.client.appId
-    },
-
-    "message": {
-        "headers": hm.current.get(),
-        "size": serviceVars.mpgw.responseSize
-    },
-    "error": apiError.errorObject()
-};
-gwState.notice(JSON.stringify(analyticsData), false);
-
-
 // determine error ourput content-type
 let outputType;
 if (internalVars.getVar('producesType')) {
@@ -146,17 +123,19 @@ if (gwState.onErrorState() == GatewayState.states.BACKEND &&
                 onExit(apiError, errorOutput);
             });
         } else {
+            
             errorOutput = produceErrorOutput(apiError);;
             onExit(apiError, errorOutput);
         }
 
     } catch (e) {
+
         gwState.error(e.stack);
         // fall back to default handler
         errorOutput = produceErrorOutput(apiError);
         onExit(apiError, errorOutput);
-    }
 
+    }
 } else {
     let errorOutput = produceErrorOutput(apiError);  // string or json object to output as error response
     onExit(apiError, errorOutput);
@@ -167,7 +146,8 @@ if (gwState.onErrorState() == GatewayState.states.BACKEND &&
 function onExit(apiError, output) {
     setResponseContentType();
     apiError.httpError(true);
-    console.error (JSON.stringify(output));
+    logAnalytics();
+    //console.error (JSON.stringify(output));
     session.output.write(output);
 
     gwState.onExit();
@@ -195,4 +175,30 @@ function setResponseContentType() {
     let ct = produceContentType();
     gwState.debug('Set response Content-Type: ' + ct)
     hm.current.set('Content-Type', ct);
+}
+function logAnalytics() {
+        // log
+
+    var analyticsData = {
+        "state": "error",
+        "tid": serviceVars.transactionId,
+        "gtid": sessionVars.gtid,
+        "datetime": new Date().toISOString(),
+        "latency": serviceVars.timeElapsed,
+
+        "client": {
+            "ip": sessionVars.client.ip,
+            "orgId": sessionVars.client.orgId,
+            "appId": sessionVars.client.appId
+        },
+
+        "message": {
+            "headers": hm.current.get(),
+            "status": hm.current.statusCode,
+            "reason": hm.current.reasonPhrase,
+            "size": serviceVars.mpgw.responseSize
+        },
+        "error": apiError.errorObject().error
+    };
+    gwState.notice(JSON.stringify(analyticsData), false);
 }

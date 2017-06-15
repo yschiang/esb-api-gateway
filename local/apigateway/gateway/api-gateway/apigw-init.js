@@ -48,7 +48,7 @@ let sessionVars = {
         "orgId": null, // to be set on authapp
         "appId": null, // to be set inner this file
         "ip": serviceVars.transactionClient,
-        "forwardedFor": headerMetadata.original.get('X-Forwarded-For')? headerMetadata.original.get('X-Forwarded-For') : ""
+        "xff": headerMetadata.original.get('X-Forwarded-For')? headerMetadata.original.get('X-Forwarded-For') : ""
     },
     "request": {
         "url": serviceVars.URLIn,

@@ -32,7 +32,6 @@ if (headers.statusCode.toString()[0] != '2') {
     /** on enter */
     gwState.onEnter();
 
-    let analyticsCtx = session.createContext('response_in_analytics_full');
     let analyticsData = {
         "state": "response_in",
         "tid": serviceVars.transactionId,
@@ -42,15 +41,18 @@ if (headers.statusCode.toString()[0] != '2') {
 
         "message": {
             "headers": headers.get(),
+            "status": headers.statusCode,
+            "reason": headers.reasonPhrase,
             "size": serviceVars.mpgw.responseSize
             //"body":
         }
     };
 
     if (env['gateway.log.payload'] === true) {
+        let analyticsCtx = session.createContext('response_in_analytics_full');         
 
         // log for analytics (to remote Splunk)
-        gwState.notice(JSON.stringify(analyticsData), false);
+        gwState.logAnalytics(JSON.stringify(analyticsData));
 
         // log for full analytics
         new Promise(function(resolve, reject) {
@@ -76,7 +78,7 @@ if (headers.statusCode.toString()[0] != '2') {
 
     } else {
         // log for analytics (to remote Splunk)
-        gwState.notice(JSON.stringify(analyticsData), false);
+        gwState.logAnalytics(JSON.stringify(analyticsData));
         gwState.onExit(true);
     }    
 }

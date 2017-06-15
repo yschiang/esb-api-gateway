@@ -28,7 +28,7 @@ let analyticsCtx = session.createContext('request_out_analytics_full');
 let analyticsData = {
     "state": "request_out",
     "tid": serviceVars.transactionId,
-    "gtid": sessionVars.gtid,
+    "gtid": sessionVars.system.gtid,
     "datetime": new Date().toISOString(),
     "latency" : serviceVars.timeElapsed,
 
@@ -36,7 +36,8 @@ let analyticsData = {
         "name": sessionVars.api.name,
         "version": sessionVars.api.version,
         "root": sessionVars.api.root,
-        "path": sessionVars.api.path 
+        "path": sessionVars.api.path,
+        "operation": sessionVars.api.operation
     },
 
     "client": {
@@ -64,7 +65,7 @@ if (env['gateway.log.payload'] === true) {
             } else {
 
                 // log for analytics (to remote Splunk)
-                gwState.notice(JSON.stringify(analyticsData), false);
+                gwState.logAnalytics(JSON.stringify(analyticsData));
 
                 resolve(buffer);
             }
@@ -84,6 +85,6 @@ if (env['gateway.log.payload'] === true) {
 
 } else {
     // log for analytics (to remote Splunk)
-    gwState.notice(JSON.stringify(analyticsData), false);
+    gwState.logAnalytics(JSON.stringify(analyticsData));
     gwState.onExit(true);
 }

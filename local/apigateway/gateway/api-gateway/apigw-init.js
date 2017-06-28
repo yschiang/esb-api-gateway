@@ -40,13 +40,15 @@ let sessionVars = {
         "name": null,   // to be set on route
         "root": null,   // basepath; to be set inner this file
         "version": null,// to be set on route
-        "endpointAddress": serviceVars.localServiceAddress, // to be set on route
-        "path": null, // to be set on route
+        "endpointAddress": serviceVars.localServiceAddress,
+        "path": null,   // to be set on route
+        "requestPath": null,   // to be set on route
         "operation": serviceVars.protocolMethod.toLowerCase()
     },
     "client": {
-        "orgId": null, // to be set on authapp
-        "appId": null, // to be set inner this file
+        "organizationId": null, // to be set on authapp
+        "clientId": null, // to be set inner this file,
+        "clientIdNo": null,
         "ip": serviceVars.transactionClient,
         "xff": headerMetadata.original.get('X-Forwarded-For')? headerMetadata.original.get('X-Forwarded-For') : ""
     },
@@ -99,7 +101,7 @@ for (let api in apis) {
 if (basePath) {
 
     sessionVars.api.root = basePath;
-    sessionVars.api.path = fullPath.substring(basePath.length);	// "/rates" in URIin
+    sessionVars.api.requestPath = fullPath.substring(basePath.length);	// "/rates" in URIin
     sessionVars.request.path = fullPath;
 
     let definitionDir = env['api.dir'] + basePath.substr(1).replace(/\//g, '.') + '/'; // /fx/v1 ==> local:///apis/fx.v1
@@ -114,7 +116,8 @@ let clientId = parsedURL.query.client_id;
 if (!clientId) {
     clientId = headerMetadata.original.get(env['app.clientid.header']);
 }
-sessionVars.client.appId = clientId ? clientId : "";
+sessionVars.client.clientId = clientId ? clientId : "";
+gwState.debug ("Extracted clientId: " + clientId);
 
 for (let n in vars) {
     _ctx.setVar(n, vars[n]);

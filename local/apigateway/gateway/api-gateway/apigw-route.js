@@ -90,7 +90,7 @@ function getSchema(v, type) {
 // INPUT
 // URIin: "/fx/rates?client_id=123"
 var inBasePath = sessionVars.api.root;					// "/fx"
-var inPath = sessionVars.api.path;					// "/rates" in URIin
+var inPath = sessionVars.api.requestPath;				// "/rates/123" in URIin
 var inVerb = sessionVars.request.verb;					// "post" lowercase
 
 // MATCHED
@@ -146,6 +146,7 @@ for (let path in oneApi.paths) {
 					params[paramName] = paramValue;
 				}
 				requestVars.parameters = params;
+				apiVars.path = path;
 			}
 		}
     }

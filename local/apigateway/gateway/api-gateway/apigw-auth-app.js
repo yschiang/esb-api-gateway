@@ -42,7 +42,7 @@ gwState.onEnter();
 // load apps.json where clientId represents an App
 var apps = require(env['config.clients.path']);	// local:///config/apps.js
 
-var clientId = sessionVars.client.appId;
+var clientId = sessionVars.client.clientId;
 var clientIp = sessionVars.client.ip;
 
 var configFault = false; // the orgs-apis.js is not valid, return 500 when this is true
@@ -70,9 +70,10 @@ do {
 		break;
 	}
 
-	clientVars.orgId = app.organizationId;
+	// fill in organizationId
+	clientVars.organizationId = app.organizationId;
 	sessionVars.client = clientVars;
-	gwState.debug("Organization identified by client app. (client='" + clientId + "', orgnization='"+ clientVars.orgId + "')");
+	gwState.debug("Organization identified by client app. (clientId='" + clientId + "', orgnization='"+ clientVars.organizationId + "')");
 
 
 	// ACL check
@@ -187,7 +188,7 @@ do {
 
 // the orgs-api def file is invalid.
 if (configFault) {
-	gwState.error("System org-api configuration is invalid; please check the format with following information. (client=" + clientId +")");
+	gwState.error("System org-api configuration is invalid; please check the format with following information. (clientId=" + clientId +")");
 	gwState.abort(new Error("System internal error"), 500);
 	return;
 }

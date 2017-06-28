@@ -188,8 +188,8 @@ function logAnalytics() {
 
         "client": {
             "ip": sessionVars.client.ip,
-            "orgId": sessionVars.client.orgId,
-            "appId": sessionVars.client.appId
+            "organizationId": sessionVars.client.organizationId,
+            "clientIdNo": sessionVars.client.clientIdNo
         },
 
         "message": {

@@ -41,8 +41,8 @@ let analyticsData = {
     },
 
     "client": {
-        "orgId": sessionVars.client.orgId,
-        "appId": sessionVars.client.appId
+        "organizationId": sessionVars.client.organizationId,
+        "clientIdNo": sessionVars.client.clientIdNo
     },
 
     "message": {

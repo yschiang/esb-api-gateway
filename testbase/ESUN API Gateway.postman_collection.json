@@ -229,6 +229,51 @@
 						"description": ""
 					},
 					"response": []
+				},
+				{
+					"name": "auth-allow-parameterized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"HTTP Content-Type is JSON\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json\";",
+									"",
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
+									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");",
+									"tests[\"verify invoke body\"] = (data.body.param1 === \"abc\" && data.body.param2 === \"12345\");",
+									"tests[\"verify invoke url\"] = (data.url == \"http://127.0.0.1:8198/backend/?foo=abc&bar=12345\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/parameterized/abc/parts/12345",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"toCurrency\": \"USD\",\n\t\"fromCurrency\": \"TWD\",\n\t\"amount\": 10000\n}"
+						},
+						"description": ""
+					},
+					"response": []
 				}
 			]
 		},
@@ -875,7 +920,7 @@
 									"tests[\"verify invoke content-type\"] = (data.headers['Content-Type'] === \"application/json\");",
 									"tests[\"verify invoke method\"] = (data.httpMethod === \"POST\");",
 									"tests[\"verify invoke body\"] = (data.body.param1 === \"abc\" && data.body.param2 === \"12345\");",
-									"tests[\"verify invoke url\"] = (data.url == \"http://127.0.0.1:8198/backend/foo=abc&bar=12345\");",
+									"tests[\"verify invoke url\"] = (data.url == \"http://127.0.0.1:8198/backend/?foo=abc&bar=12345\");",
 									""
 								]
 							}

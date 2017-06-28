@@ -55,5 +55,14 @@ module.exports = {
         ],
         "organizationId": "org_seq_no2",
         "clientIdNo": "client_002"
+    },
+
+    "param-tester-1234567890": {
+        "description": "testing api with param query",
+        "authorizedResources": {
+            "/tests": {
+                "/parameterized/{param1}/parts/{param2}": "*"
+            }
+        }
     }
 };

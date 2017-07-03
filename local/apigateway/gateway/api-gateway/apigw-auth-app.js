@@ -61,6 +61,7 @@ var allowedIps;
 
 do {
 	var app = maps.client[clientId];
+
 	if (!app) {
 		error = "Requested client is not an authorized application and rejected. (client_id='" + clientId + "')";
 		break;
@@ -108,7 +109,7 @@ do {
 	}
 
 	// Authorization
-	allowedApis = system['authorizedResources'];
+	allowedApis = system['authorized_resources'];
 	if (!allowedApis) {
 		error = "Application access to the API is not granted. (client_id='" + clientId + "')";
 		break;

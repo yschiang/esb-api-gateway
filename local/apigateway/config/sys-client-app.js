@@ -56,7 +56,7 @@ module.exports = {
             "name": "limited-tester",
             "description": "tester with limited permissions",
             "key": "",
-            "authorizedResources": {
+            "authorized_resources": {
                 "/tests": {
                     "/authapp/allow-all": "*",
                     "/authapp/allow-get": [
@@ -73,7 +73,7 @@ module.exports = {
             // "ips": [
             //     "172.17.3.1"
             // ],
-            "authorizedResources": {
+            "authorized_resources": {
                 "/tests": {
                     "/parameterized/{param1}/parts/{param2}": "*"
                 }

@@ -33,7 +33,7 @@ var _sysParams = {
     'api.log.payload': false,
     'api.log.category': 'apigw',
 
-    'config.clients.path': 'local:///config/apps.js',
+    'config.clients.path': 'local:///config/sys-client-app.js',
     'config.orgs.path': 'local:///config/orgs.js',
 
     'app.clientid.header': 'X-APP-CLIENT-ID',

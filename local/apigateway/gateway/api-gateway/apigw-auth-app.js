@@ -2,23 +2,19 @@
  * @file 
  * Implementation for gateway state (authapp)
  * 
- * Map input "client_id" in to application.
-
-Sample app
-
-    "super-tester-1234567890": {
-        "description": "tester with all permissions",
-        "organization": "super-testers",
-        "authorizedResources": {
-            "/tests": "*",
-        },
-        "acl": [
-            "0.0.0.0/0",
-            "172.17.0.0/24"
-        ]
-    }
-
-*/
+ * Use the mapping table defined in env['config.clients.path'] for authorization.
+ * 
+ * The current implementation are defined as following:
+ * 
+ * 
+ * client:
+ * 		- id
+ * 		- systemSequenceNo (system#id)
+ * system:
+ * 		- id
+ * 		- authorizedResources
+ * 		- acl
+ */
 
 var env = require('../settings').ENV,
 	GatewyUtils = require('./apigw-util'),
@@ -40,12 +36,12 @@ var clientVars = sessionVars.client;
 gwState.onEnter();
 
 // load apps.json where clientId represents an App
-var apps = require(env['config.clients.path']);	// local:///config/apps.js
+var maps = require(env['config.clients.path']);	// local:///config/apps.js
 
 var clientId = sessionVars.client.clientId;
 var clientIp = sessionVars.client.ip;
 
-var configFault = false; // the orgs-apis.js is not valid, return 500 when this is true
+var configFault = false; // the [config.clients.path].js is not valid, return 500 when this is true
 var error;
 var decision = false;	// by default deny all
 
@@ -64,20 +60,29 @@ var allowedOperations;
 var allowedIps;
 
 do {
-	var app = apps[clientId];
+	var app = maps.client[clientId];
 	if (!app) {
 		error = "Requested client is not an authorized application and rejected. (client_id='" + clientId + "')";
 		break;
 	}
 
-	// fill in organizationId
-	clientVars.organizationId = app.organizationId;
+	// fill in systemId
+	var systemId =  app['$system'];
+	clientVars.systemId = systemId;
 	sessionVars.client = clientVars;
-	gwState.debug("Organization identified by client app. (clientId='" + clientId + "', orgnization='"+ clientVars.organizationId + "')");
+	gwState.debug("Identified client: (clientId='" + clientId + "')");
 
+
+	// ref to system definitions
+	var system = maps.system[systemId];
+	if (!system) {
+		error = "Requested client doesn't belong to an authorized system and rejected. (client_id='" + clientId + "')";
+		break;
+	}
+	gwState.debug("Identified client system: (systemId='" + systemId + "')");
 
 	// ACL check
-	allowedIps = app['acl'];
+	allowedIps = system['acl'];
 	if (allowedIps) {
 
 		if (!util.isArray(allowedIps)) {
@@ -103,7 +108,7 @@ do {
 	}
 
 	// Authorization
-	allowedApis = app['authorizedResources'];
+	allowedApis = system['authorizedResources'];
 	if (!allowedApis) {
 		error = "Application access to the API is not granted. (client_id='" + clientId + "')";
 		break;

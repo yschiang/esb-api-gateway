@@ -46,9 +46,8 @@ let sessionVars = {
         "operation": serviceVars.protocolMethod.toLowerCase()
     },
     "client": {
-        "organizationId": null, // to be set on authapp
+        "systemId": null, // to be set on authapp
         "clientId": null, // to be set inner this file,
-        "clientIdNo": null,
         "ip": serviceVars.transactionClient,
         "xff": headerMetadata.original.get('X-Forwarded-For')? headerMetadata.original.get('X-Forwarded-For') : ""
     },

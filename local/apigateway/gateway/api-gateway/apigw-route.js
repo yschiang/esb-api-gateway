@@ -122,6 +122,7 @@ for (let path in oneApi.paths) {
 
 	if (path == inPath) {
 		matched = true;
+		apiVars.path = path;
 	} else {
 		// definition: /abc/def/{cust_id}/xyz/{phone-number}
 		// matched: [ '{cust_id}', '{phone-number}' ]

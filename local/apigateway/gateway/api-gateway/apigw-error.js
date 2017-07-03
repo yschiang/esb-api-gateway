@@ -158,13 +158,19 @@ function produceErrorOutput(apiError) {
     let errorObject = apiError.errorObject();
     if (outputType == OUTPUT_TYPE.XML) {
         return (
-        "<error>\n" + 
-        "  <code>" + errorObject.error.code + "</code>\n" +
-        "  <status>" + errorObject.error.status + "</status>\n" +
-        "  <message>" + errorObject.error.message + "</message>\n" +
-        "</error>");
+            "<error>\n" + 
+            "  <httpCode>" + errorObject.error.code + "</httpCode>\n" +
+            "  <httpMessage>" + errorObject.error.status + "</httpMessage>\n" +
+            "  <moreInformation>" + errorObject.error.message + "</moreInformation>\n" +
+            "</error>");
     } else {
-        return errorObject;
+        return (
+            {
+                "httpCode": errorObject.error.code,
+                "httpMessage": errorObject.error.status,
+                "moreInformation": errorObject.error.message
+            }
+        );
     }
 }
 
@@ -188,8 +194,8 @@ function logAnalytics() {
 
         "client": {
             "ip": sessionVars.client.ip,
-            "organizationId": sessionVars.client.organizationId,
-            "clientIdNo": sessionVars.client.clientIdNo
+            "systemId": sessionVars.client.systemId,
+            "clientId": sessionVars.client.clientId
         },
 
         "message": {

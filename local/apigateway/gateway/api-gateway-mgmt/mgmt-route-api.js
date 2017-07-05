@@ -24,13 +24,14 @@ if (!authorized) {
 let mod = '';
 let schema = '';
 // Main router
-if (urlparts.pathname.indexOf('/mgmt/clients') != -1) {
+if (urlparts.pathname.indexOf('/mgmt/clients') != -1 ||
+    urlparts.pathname.indexOf('/mgmt/systems') != -1) {
 
     mod = 'local:///gateway/api-gateway-mgmt/clients/clients.js';
-    //require('./clients/clients.js');
+
 } else if (urlparts.pathname.indexOf('/mgmt/apis') != -1) {
 
-    mod    = 'local:///gateway/api-gateway-mgmt/apis/apis.js';
+    mod = 'local:///gateway/api-gateway-mgmt/apis/apis.js';
 
     // module API, not Docs
     if (urlparts.pathname.indexOf('/docs/') == -1) {
@@ -40,7 +41,6 @@ if (urlparts.pathname.indexOf('/mgmt/clients') != -1) {
             schema = 'local:///gateway/api-gateway-mgmt/apis/api.jsv';
         }
     }
-    //require('./apis/apis.js');
 }
 
 if (!mod) {

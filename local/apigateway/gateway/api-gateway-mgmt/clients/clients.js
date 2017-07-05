@@ -12,6 +12,7 @@
 var serviceVars = require('service-metadata');
 var urlparts = require('url').parse(serviceVars.URLIn, true);
 var apiError = require('local:///gateway/utils/errors').GWError;
+var utils = require('util');
 
 let Clients = (function() {
 
@@ -19,14 +20,21 @@ let Clients = (function() {
         this._func = null;
         this._url = urlparts;
         this._allClients = null;
+        this._allSystems = null;
     }
 
-    Clients.prototype.init = function (clientsCfg) {
+    Clients.prototype.init = function (cfg) {
         try {
-            this._allClients = require(clientsCfg);
+            let allData = require(cfg);
+            this._allSystems = allData.system;
+            this._allClients = allData.client;
+
+            if (!this._allSystems || !this._allClients) {
+                throw "Unable to load system configs.";
+            }
         } catch (e) {
-            console.error ("Unable to load required clientid data from " + clientsCfg);
-            throw new Error("Unable to load system configs");
+            console.error ("Unable to load required data from " + clientsCfg);
+            throw new Error("Unable to load system configs.");
         }
         return true;
     }
@@ -43,6 +51,7 @@ let Clients = (function() {
     }
 
     Clients.prototype.get = function () {
+        console.error ("AAA " + this._url.pathname);
         if (this._url.pathname == "/mgmt/clients") {
             // get all
             session.output.write(this._allClients);
@@ -55,6 +64,26 @@ let Clients = (function() {
                 o = this._allClients[clientid];
             }
             session.output.write(o ? o : {});
+        } else if (this._url.pathname == "/mgmt/systems") {
+
+            session.output.write(this._allSystems);
+        } else if (/^\/mgmt\/systems\/[\w -_]+$/.test(this._url.pathname)) {
+
+            let o = {};
+            let systemName = this._url.pathname.substr("/mgmt/systems/".length);
+            if (systemName) {
+                let systemIds = Object.keys(this._allSystems);
+                for (let i=0; i<systemIds.length; i++) {
+                    let systemId = systemIds[i];
+                    let systemObject = this._allSystems[systemId];
+                    if (systemObject.name === systemName) {
+                        o = systemObject;
+                        o.id = systemId;
+                    }
+                }
+            }
+            session.output.write(o ? o : {});
+
         } else {
             let errorMessage = "Unsupported GET invokation for mgmt API endpoint [" + this._url.path + ']';
             this.error(errorMessage);
@@ -95,14 +124,15 @@ let Clients = (function() {
             "/mgmt/clients": {
                 "GET": this.get,
                 "POST": this.post
+            },
+            "/mgmt/systems": {
+                "GET": this.get
             }
         };
 
         let path = this._url.pathname;
         let verb = serviceVars.protocolMethod;
         for (let endpoint in endpoints) {
-            console.error (endpoint);
-            console.error (path);
             if (path.indexOf(endpoint) == 0) {
                 let ops = endpoints[endpoint];
                 for (let op in ops) {
@@ -142,7 +172,7 @@ let Clients = (function() {
 // main
 var c = new Clients();
 try {
-    c.init("local:///config/apps.js");
+    c.init("local:///config/sys-client-app.js");
     if (c.route()) {
         c.execute();
     } else {

@@ -194,6 +194,7 @@ function logAnalytics() {
 
         "client": {
             "ip": sessionVars.client.ip,
+            "xff": sessionVars.client.xff,
             "systemId": sessionVars.client.systemId,
             "clientId": sessionVars.client.clientId
         },

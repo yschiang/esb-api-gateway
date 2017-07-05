@@ -34,6 +34,7 @@ var rules = require('local:///config/acl.js').acl;
 var whiteMask = rules.allowed;
 var blackMask = rules.denied;
 
+// use the immediate client - i.e., load balancer's ip addr for device ACL
 var clientip = sessionVars.client.ip;
 
 var denied = false; // default deny  none

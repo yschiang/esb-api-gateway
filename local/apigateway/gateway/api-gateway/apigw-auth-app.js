@@ -39,7 +39,9 @@ gwState.onEnter();
 var maps = require(env['config.clients.path']);	// local:///config/apps.js
 
 var clientId = sessionVars.client.clientId;
-var clientIp = sessionVars.client.ip;
+
+// the APP ACL filters the actual client's IP, preceding the closest-client's ip
+var clientIp = sessionVars.client.xff ? sessionVars.client.xff : sessionVars.client.ip;
 
 var configFault = false; // the [config.clients.path].js is not valid, return 500 when this is true
 var error;
@@ -83,7 +85,7 @@ do {
 	gwState.debug("Identified client system: (systemId='" + systemId + "')");
 
 	// ACL check
-	allowedIps = system['acl'];
+	allowedIps = system['ip'];
 	if (allowedIps) {
 
 		if (!util.isArray(allowedIps)) {
@@ -91,13 +93,10 @@ do {
 			break;
 		}
 
-		for (let i = 0; i<allowedIps.length; i++) {
-			let white = new netmask(allowedIps[i]);
-			if (white.contains(clientIp)) {
-				accessClientIp = true;
-				break;
-			}
+		function ipExactFilter(whiteIp, index, array) {
+			return whiteIp === clientIp;
 		}
+		accessClientIp = allowedIps.some(ipExactFilter);
 	} else {
 		// by default allow all
 		accessClientIp = true;

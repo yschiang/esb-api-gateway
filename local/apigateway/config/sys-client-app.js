@@ -70,7 +70,7 @@ module.exports = {
             "name": "",
             "description": "testing api with param query",
             "key": "",
-            // "ips": [
+            // "ip": [
             //     "172.17.3.1"
             // ],
             "authorized_resources": {
@@ -86,12 +86,15 @@ module.exports = {
         "super-tester-1234567890": {
             // use $ for referencial key
             // actually consider to use $ref: "system#sys_001"
+            "name": "description about this client",
             "$system": "sys_001"
         },
         "limited-tester-1234567890": {
+            "name": "description about this client",
             "$system": "sys_002"
         },
         "param-tester-1234567890": {
+            "name": "description about this client",
             "$system": "sys_003"
         }
     }

@@ -36,8 +36,9 @@ let analyticsData = {
         "name": sessionVars.api.name,
         "version": sessionVars.api.version,
         "root": sessionVars.api.root,
-        "path": sessionVars.api.path,
-        "operation": sessionVars.api.operation
+        "env": sessionVars.api.env,
+        "operationPath": sessionVars.api.operationPath,
+        "operationMethod": sessionVars.api.operationMethod
     },
 
     "client": {

@@ -10,6 +10,7 @@ var util = require('util'),
 
 // User-configurable params with their default value
 var _usrsParams = {
+    'environment.id': '',
     'system.mgmt.port': 5551,
     'gateway.log.payload': false,
 };

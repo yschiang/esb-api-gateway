@@ -37,8 +37,8 @@ let analyticsData = {
     },
 
     "request": {
-        "method": sessionVars.request.verb,
         "path": sessionVars.request.path,
+        "method": sessionVars.request.verb,
         "endpoint" : sessionVars.request.endpointAddress,
 
         "uri": utils.maskClientId(sessionVars.request.uri),

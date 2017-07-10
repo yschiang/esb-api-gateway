@@ -157,9 +157,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 401);",
-									"tests[\"verify error status\"] = (data.error.status === \"Unauthorized\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 401);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Unauthorized\");",
+									"tests[\"verify error message\"] = (data.httpMessage !== \"\");"
 								]
 							}
 						}
@@ -1253,9 +1253,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 400);",
-									"tests[\"verify error status\"] = (data.error.status === \"Bad Request\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 400);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Bad Request\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -1296,9 +1296,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 500);",
-									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 500);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -1384,9 +1384,9 @@
 									"",
 									"var data = xml2Json(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === \"400\");",
-									"tests[\"verify error status\"] = (data.error.status === \"Bad Request\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");",
+									"tests[\"verify error code\"] = (data.httpCode === \"400\");",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Bad Request\");",
+									"tests[\"verify error message\"] = (data.errormoreInformation !== \"\");",
 									"",
 									"",
 									""
@@ -1431,9 +1431,9 @@
 									"",
 									"var data = xml2Json(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === \"500\");",
-									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");",
+									"tests[\"verify error code\"] = (data.httpCode === \"500\");",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");",
 									"",
 									"",
 									""
@@ -1535,7 +1535,7 @@
 						}
 					],
 					"request": {
-						"url": "{{APIGW_ENDPOINT}}/assembly/get2post",
+						"url": "{{APIGW_ENDPOINT}}/tests/verbs",
 						"method": "GET",
 						"header": [
 							{

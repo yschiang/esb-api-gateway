@@ -192,6 +192,15 @@ function logAnalytics() {
         "datetime": new Date().toISOString(),
         "latency": serviceVars.timeElapsed,
 
+        "api": {
+            "name": sessionVars.api.name,
+            "version": sessionVars.api.version,
+            "root": sessionVars.api.root,
+            "env": sessionVars.api.env,
+            "operationPath": sessionVars.api.operationPath,
+            "operationMethod": sessionVars.api.operationMethod
+        },
+
         "client": {
             "ip": sessionVars.client.ip,
             "xff": sessionVars.client.xff,

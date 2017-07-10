@@ -48,8 +48,8 @@ var error;
 var decision = false;	// by default deny all
 
 var inApi = sessionVars.api.root;
-var inPath = sessionVars.api.path;
-var inOperation = sessionVars.request.verb;
+var inPath = sessionVars.api.operationPath;
+var inMethod = sessionVars.api.operationMethod;
 
 var accessApi = false;
 var accessPath = false;
@@ -177,7 +177,7 @@ do {
 	let operationNames = allowedOperations;
 	for (let i = 0; i < operationNames.length; i++) {
 		let operation = operationNames[i];
-		if (operation.toLowerCase() === inOperation.toLowerCase()) {
+		if (operation.toLowerCase() === inMethod.toLowerCase()) {
 			accessOperation = true;
 			decision = true;
 			break;
@@ -185,7 +185,7 @@ do {
 	}
 
 	if (!accessOperation) {
-		error = "Application access to the API/path/operation is not granted. (api='" + inApi + "', path='" + inPath + "', operation='" + inOperation + "')";
+		error = "Application access to the API/path/operation is not granted. (api='" + inApi + "', path='" + inPath + "', method='" + inMethod + "')";
 		break;
 	}
 
@@ -213,7 +213,7 @@ if (!decision) {
 // granted, 
 
 // logging for noticing the API access
-gwState.info("Access granted. (api='" + inApi + "', path='" + inPath + "', operation='" + inOperation + "')");
+gwState.info("Access granted. (api='" + inApi + "', path='" + inPath + "', method='" + inMethod + "')");
 
 /** on exit; move state */
 gwState.onExit(true);

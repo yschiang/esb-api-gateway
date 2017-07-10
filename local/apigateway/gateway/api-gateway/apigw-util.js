@@ -379,14 +379,30 @@ var InternalVars = function() {
 
     function InternalVars() {
         this._ctx = session.name('apiSession');
+        this._vars = this._ctx.getVar('_internal');
     }
 
+    /**
+     * setVar sets two storage:
+     * - var://context/apiSession/_internal	: as a JSON object like { "definitionDir":"local:///apis/tests/", "definitionModule":"local:///apis/tests/api.js" }
+     * - 
+     */
     InternalVars.prototype.setVar = function(name, value) {
+
+        if (!this._vars) {
+            throw new Error("Gateway internal error: Internal vars uninitialized.");
+        }
         this._ctx.setVar('_' + name, value);
+        this._vars[name] = value;
+        this._ctx.setVar('_internal', this._vars);
     }
 
     InternalVars.prototype.getVar = function(name) {
-        return this._ctx.getVar('_' + name);
+        if (!this._vars) {
+            throw new Error("Gateway internal error: Internal vars uninitialized.");
+        }
+
+        return this._vars[name];
     }
 
     return InternalVars;

@@ -89,18 +89,26 @@ function getSchema(v, type) {
 
 // INPUT
 // URIin: "/fx/rates?client_id=123"
-var inBasePath = sessionVars.api.root;					// "/fx"
-var inPath = sessionVars.api.requestPath;				// "/rates/123" in URIin
-var inVerb = sessionVars.request.verb;					// "post" lowercase
+var inFullPath = sessionVars.request.path;		// "/<env>/<root>/<operation>" in URIin, including env, root, and operation path
+var inEnvPath = sessionVars.request.envPath;	// "/<env>"
+var inBasePath = sessionVars.api.basePath;			// "/<root>"
+var inOperationPath = sessionVars.request.operationPath; // "/<operation>"
+var inVerb = sessionVars.request.verb;			// "post" lowercase
 
 // MATCHED
-var basePath = sessionVars.api.root;					// "/fx"
+var envPath = sessionVars.request.envPath;				// "/<env>"
+var basePath = sessionVars.api.root;					// "/<root>"
 var oneApi;												// API definition json object
-var oneResource;										// Resource definition json object
+var oneResource;										// Resource (ie. operation) definition json object
 var resourceName;     									// "/rates" from Resource definition
 
+if (!envPath) {
+	gwState.abort(new Error("Tanent environment not found in the requested URL"), 404);
+	return;	
+}
+
 if (!basePath) {
-	gwState.abort(new Error("API not found for the requested URL"), 404);
+	gwState.abort(new Error("API not found in the requested URL"), 404);
 	return;
 }
 
@@ -120,9 +128,9 @@ var re_1 = /\{([\w.-]+)\}/g;
 for (let path in oneApi.paths) {
 	let matched;
 
-	if (path == inPath) {
+	if (path == inOperationPath) {
 		matched = true;
-		apiVars.path = path;
+		apiVars.operationPath = path;
 	} else {
 		// definition: /abc/def/{cust_id}/xyz/{phone-number}
 		// matched: [ '{cust_id}', '{phone-number}' ]
@@ -135,7 +143,7 @@ for (let path in oneApi.paths) {
 			// not matched: null
 			let pathRegexStr = '^' + path.replace(re_1, '([\\w.-]+)') + '$';
 			let re_2 = new RegExp(pathRegexStr);
-			matched = inPath.match(re_2); // ["/abc/def/1234567_890-11/xyz/kkkkkkkkkk","1234567_890-1","kkkkkkkkkk"]
+			matched = inOperationPath.match(re_2); // ["/abc/def/1234567_890-11/xyz/kkkkkkkkkk","1234567_890-1","kkkkkkkkkk"]
 
 			// save the params in URI into var://context/apiSession/_params
 			if (matched) {
@@ -147,7 +155,7 @@ for (let path in oneApi.paths) {
 					params[paramName] = paramValue;
 				}
 				requestVars.parameters = params;
-				apiVars.path = path;
+				apiVars.operationPath = path;
 			}
 		}
     }
@@ -159,6 +167,7 @@ for (let path in oneApi.paths) {
 		resourceName = path;
 
 		if (resource[inVerb]) {
+			apiVars.operationMethod = inVerb;
 			oneResource = resource[inVerb];
 			break;
 		}
@@ -171,7 +180,7 @@ sessionVars.request = requestVars;
 
 if (oneResource) {
 	// resourceName
-	gwState.info("API resource matched. (api='" + apiVars.root + "', resource='" + apiVars.operation.toUpperCase() + ' ' + apiVars.path + "')");
+	gwState.info("API resource matched. (api='" + apiVars.root + "', resource='" + apiVars.operationPath.toUpperCase() + ' ' + apiVars.path + "')");
 
 	// backend
 	let backend = (oneResource.backend && oneResource.backend.url) ? oneResource.backend : oneApi.defaultBackend;

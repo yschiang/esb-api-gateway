@@ -524,9 +524,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 500);",
-									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 500);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -567,9 +567,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 404);",
-									"tests[\"verify error status\"] = (data.error.status === \"Not Found\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 404);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Not Found\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -610,9 +610,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 404);",
-									"tests[\"verify error status\"] = (data.error.status === \"Not Found\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 404);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Not Found\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -653,9 +653,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 404);",
-									"tests[\"verify error status\"] = (data.error.status === \"Not Found\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 404);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Not Found\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -696,9 +696,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 401);",
-									"tests[\"verify error status\"] = (data.error.status === \"Unauthorized\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 401);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Unauthorized\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -739,9 +739,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 400);",
-									"tests[\"verify error status\"] = (data.error.status === \"Bad Request\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 400);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Bad Request\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -825,9 +825,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 500);",
-									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 500);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}
@@ -868,9 +868,9 @@
 									"",
 									"var data = JSON.parse(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === 500);",
-									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");"
+									"tests[\"verify error code\"] = (data.httpCode === 500);",
+									"tests[\"verify error status\"] = (data.httpMessage === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.moreInformation !== \"\");"
 								]
 							}
 						}

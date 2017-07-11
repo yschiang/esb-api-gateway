@@ -130,7 +130,7 @@ for (let path in oneApi.paths) {
 
 	if (path == inOperationPath) {
 		matched = true;
-		apiVars.operationPath = path;
+		apiVars.operation.path = path;
 	} else {
 		// definition: /abc/def/{cust_id}/xyz/{phone-number}
 		// matched: [ '{cust_id}', '{phone-number}' ]
@@ -167,7 +167,7 @@ for (let path in oneApi.paths) {
 		resourceName = path;
 
 		if (resource[inVerb]) {
-			apiVars.operationMethod = inVerb;
+			apiVars.operation.method = inVerb;
 			oneResource = resource[inVerb];
 			break;
 		}
@@ -180,7 +180,7 @@ sessionVars.request = requestVars;
 
 if (oneResource) {
 	// resourceName
-	gwState.info("API resource matched. (api='" + apiVars.root + "', resource='" + apiVars.operationPath.toUpperCase() + ' ' + apiVars.path + "')");
+	gwState.info("API resource matched. (api='" + apiVars.root + "', resource='" + apiVars.operation.path.toUpperCase() + ' ' + apiVars.path + "')");
 
 	// backend
 	let backend = (oneResource.backend && oneResource.backend.url) ? oneResource.backend : oneApi.defaultBackend;
@@ -282,7 +282,7 @@ if (oneResource) {
 
 } else {
 
-	gwState.abort(new Error("Requested operation not found for API (api='" + basePath + "',  resource='" + inVerb.toUpperCase() + " " + inPath + "')"), 404);
+	gwState.abort(new Error("Requested operation not found for API (env='" + inEnvPath + "', api='" + basePath + "',  resource='" + inVerb.toUpperCase() + " " + inOperationPath + "')"), 404);
 	return;
 }
 

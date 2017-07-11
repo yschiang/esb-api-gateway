@@ -52,13 +52,17 @@ let sessionVars = {
         "version": null,// to be set on route
         "endpointAddress": serviceVars.localServiceAddress,
         //"path": null,   // to be set on route
-        "operationMethod": null,
-        "operationPath": null
+        "operation": {
+            "method": null,
+            "path": null
+        }
     },
     "client": {
-        "systemId": null, // to be set on authapp
-        "systemName": null, // to be set on authapp
-        "systemKey": null, // to be set on authapp
+        "system": {
+            "id": null, // to be set on authapp
+            "name": null, // to be set on authapp
+            "key": null, // to be set on authapp
+        },
         "clientId": null, // to be set inner this file,
         "ip": serviceVars.transactionClient,
         "xff": headerMetadata.original.get('X-Forwarded-For')? headerMetadata.original.get('X-Forwarded-For') : ""
@@ -160,7 +164,7 @@ let clientId = parsedURL.query.client_id;
 if (!clientId) {
     clientId = headerMetadata.original.get(env['app.clientid.header']);
 }
-sessionVars.client.clientId = clientId ? clientId : "";
+sessionVars.client.id = clientId ? clientId : "";
 gwState.debug ("Extracted clientId: " + clientId);
 
 // initialize vars

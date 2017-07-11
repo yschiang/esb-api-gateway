@@ -38,7 +38,7 @@ gwState.onEnter();
 // load apps.json where clientId represents an App
 var maps = require(env['config.clients.path']);	// local:///config/apps.js
 
-var clientId = sessionVars.client.clientId;
+var clientId = sessionVars.client.id;
 
 // the APP ACL filters the actual client's IP, preceding the closest-client's ip
 var clientIp = sessionVars.client.xff ? sessionVars.client.xff : sessionVars.client.ip;
@@ -48,8 +48,8 @@ var error;
 var decision = false;	// by default deny all
 
 var inApi = sessionVars.api.root;
-var inPath = sessionVars.api.operationPath;
-var inMethod = sessionVars.api.operationMethod;
+var inPath = sessionVars.api.operation.path;
+var inMethod = sessionVars.api.operation.method;
 
 var accessApi = false;
 var accessPath = false;
@@ -71,8 +71,7 @@ do {
 
 	// fill in systemId
 	var systemId =  app['$system'];
-	clientVars.systemId = systemId;
-	sessionVars.client = clientVars;
+	clientVars.system.id = systemId;
 	gwState.debug("Identified client: (clientId='" + clientId + "')");
 
 
@@ -82,8 +81,9 @@ do {
 		error = "Requested client doesn't belong to an authorized system and rejected. (client_id='" + clientId + "')";
 		break;
 	}
-	clientVars.systemName = system.name;
-	clientVars.systemKey = system.key;
+	clientVars.system.name = system.name;
+	clientVars.system.key = system.key;
+	sessionVars.client = clientVars;
 	gwState.debug("Identified client system: (systemId='" + systemId + "')");
 
 	// ACL check

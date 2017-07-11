@@ -53,28 +53,23 @@ if (errorSet) {
     // capture errors for some exact states we are calling multistep action not the gws action
     switch (gwState.onErrorState()) {
         case GatewayState.states.REQ_SCHEMAVAL: {
-            let message = "Request schema validation failed.";
-            apiError = new APIError(message, 400);
+            apiError = new APIError("Request schema validation failed.", 400);
             break;
         }
         case GatewayState.states.RES_SCHEMAVAL: {
-            let message = "Response schema validation failed.";
-            apiError = new APIError(message, 500);
+            apiError = new APIError("Response schema validation failed.", 500);
             break;
         }
         case GatewayState.states.REQ_PROCESSOR: {
-            let message = "Request processor execution error.";
-            apiError = new APIError(message, 500);
+            apiError = new APIError("Request processor execution error.", 500);
             break;
         }
         case GatewayState.states.RES_PROCESSOR: {
-            let message = "Response processor execution error.";
-            apiError = new APIError(message, 500);
+            apiError = new APIError("Response processor execution error.", 500);
             break;
         }
         case GatewayState.states.BACKEND: {
-            let message = "Backend service failure.";
-            apiError = new APIError(message, 503);
+            apiError = new APIError("Backend service failure.", 503);
             break;
         }
         default:
@@ -197,15 +192,21 @@ function logAnalytics() {
             "version": sessionVars.api.version,
             "root": sessionVars.api.root,
             "env": sessionVars.api.env,
-            "operationPath": sessionVars.api.operationPath,
-            "operationMethod": sessionVars.api.operationMethod
+            "operation": {
+                "path": sessionVars.api.operation.path,
+                "method": sessionVars.api.operation.method
+            }
         },
 
         "client": {
             "ip": sessionVars.client.ip,
             "xff": sessionVars.client.xff,
-            "systemId": sessionVars.client.systemId,
-            "clientId": sessionVars.client.clientId
+            "system": {
+                "id": sessionVars.client.system.id,
+                "name": sessionVars.client.system.name,
+                "key": sessionVars.client.system.key
+            },
+            "id": sessionVars.client.id
         },
 
         "message": {

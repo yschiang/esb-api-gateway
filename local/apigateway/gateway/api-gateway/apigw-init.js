@@ -57,6 +57,8 @@ let sessionVars = {
     },
     "client": {
         "systemId": null, // to be set on authapp
+        "systemName": null, // to be set on authapp
+        "systemKey": null, // to be set on authapp
         "clientId": null, // to be set inner this file,
         "ip": serviceVars.transactionClient,
         "xff": headerMetadata.original.get('X-Forwarded-For')? headerMetadata.original.get('X-Forwarded-For') : ""

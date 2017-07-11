@@ -82,6 +82,8 @@ do {
 		error = "Requested client doesn't belong to an authorized system and rejected. (client_id='" + clientId + "')";
 		break;
 	}
+	clientVars.systemName = system.name;
+	clientVars.systemKey = system.key;
 	gwState.debug("Identified client system: (systemId='" + systemId + "')");
 
 	// ACL check

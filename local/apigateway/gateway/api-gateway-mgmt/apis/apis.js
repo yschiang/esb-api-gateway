@@ -54,24 +54,16 @@ let restType = REST_ENUM.UNKNOWN;
 let apiRe = /\/mgmt\/apis\/(([.a-zA-Z0-9_-]+)(\/[.a-zA-Z0-9_-]+)*)/;
 let docRe = /\/mgmt\/apis\/(([.a-zA-Z0-9_-]+)(\/[.a-zA-Z0-9_-]+)*)\/docs\/([.a-zA-Z0-9_-]+)/;
 
-do {
+if (found = parsedUrl.pathname.match(docRe)) {
+
     // must go docs match first (narrower condition)
-    found = parsedUrl.pathname.match(docRe);
-    if (found) {
-        restType = REST_ENUM.DOC;
-        break;
-    }
+    restType = REST_ENUM.DOC;
+
+} else if (found = parsedUrl.pathname.match(apiRe)) {
 
     // then go api match
-    found = parsedUrl.pathname.match(apiRe);
-    if (found) {
-        restType = REST_ENUM.API;
-        break;
-    }
-
-    break;
-
-} while (true);
+    restType = REST_ENUM.API;
+}
 
 if (restType == REST_ENUM.UNKNOWN) {
     // no API found

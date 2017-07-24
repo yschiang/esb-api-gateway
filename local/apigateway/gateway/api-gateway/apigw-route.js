@@ -155,7 +155,7 @@ for (let path in oneApi.paths) {
 					params[paramName] = paramValue;
 				}
 				requestVars.parameters = params;
-				apiVars.operationPath = path;
+				apiVars.operation.path = path;
 			}
 		}
     }
@@ -180,7 +180,7 @@ sessionVars.request = requestVars;
 
 if (oneResource) {
 	// resourceName
-	gwState.info("API resource matched. (api='" + apiVars.root + "', resource='" + apiVars.operation.path.toUpperCase() + ' ' + apiVars.path + "')");
+	gwState.info("API resource matched. (api='" + apiVars.root + "', resource='" + apiVars.operation.method.toUpperCase() + ' ' + apiVars.operation.path + "')");
 
 	// backend
 	let backend = (oneResource.backend && oneResource.backend.url) ? oneResource.backend : oneApi.defaultBackend;

@@ -220,8 +220,11 @@ if (oneResource) {
 
 	setVar('backendType', backendType);
 	//if (backendMethod == 'post' || backendMethod == 'put') {
+
+	// per RFC, GET request shouldn't have Content-Type
+	if (backendMethod != 'get') {
 		headerMetadata.current.set('Content-Type', backendType);
-	//}
+	}
 
 	setVar('backendErrorProcess', catchBackendError); // true | false
 	setVar('backendErrorProcessor', backendErrorProcessor ? backendErrorProcessor : '');
@@ -278,6 +281,14 @@ if (oneResource) {
 	setVar('responseProcessor', p);
 
 	xmlstr += '</APISetting>';
+
+	// fill in api definitions
+	apiVars.definitions = oneResource;
+	apiVars.definitions.backend = backend;
+	apiVars.definitions.backend.url = backendUrl;
+	sessionVars.api = apiVars;
+
+	// write out metatda
 	session.output.write(xmlstr);
 
 } else {

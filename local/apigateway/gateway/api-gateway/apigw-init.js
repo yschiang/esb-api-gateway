@@ -55,7 +55,8 @@ let sessionVars = {
         "operation": {
             "method": null,
             "path": null
-        }
+        },
+        "definitions": null
     },
     "client": {
         "system": {

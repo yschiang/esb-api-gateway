@@ -94,6 +94,48 @@
 						"description": ""
 					},
 					"response": []
+				},
+				{
+					"name": "healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"HTTP Status code is 204\"] = responseCode.code === 204;",
+									"tests[\"HTTP Content-Type is JSON\"] = !postman.getResponseHeader(\"Content-Type\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{APIGW_ENDPOINT}}/tests/healthcheck",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-APP-CLIENT-ID",
+								"value": "super-tester-1234567890",
+								"description": ""
+							},
+							{
+								"key": "X-Empty",
+								"value": "true",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
 				}
 			]
 		},
@@ -302,7 +344,7 @@
 						}
 					],
 					"request": {
-						"url": "{{APIGW_ENDPOINT}}/tests/parameterized/abc/parts/12345",
+						"url": "{{APIGW_ENDPOINT}}/tests/defaults",
 						"method": "POST",
 						"header": [
 							{
@@ -478,9 +520,9 @@
 									"",
 									"var data = xml2Json(responseBody);",
 									"",
-									"tests[\"verify error code\"] = (data.error.code === \"500\");",
-									"tests[\"verify error status\"] = (data.error.status === \"Internal Server Error\");",
-									"tests[\"verify error message\"] = (data.error.message !== \"\");",
+									"tests[\"verify error code\"] = (data.error.httpCode === \"500\");",
+									"tests[\"verify error status\"] = (data.error.httpMessage === \"Internal Server Error\");",
+									"tests[\"verify error message\"] = (data.error.moreInformation !== \"\");",
 									"",
 									"",
 									""

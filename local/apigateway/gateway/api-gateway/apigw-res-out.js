@@ -100,9 +100,11 @@ function setResponseContentType() {
             return 'application/json';
         }
     };
-    let outputContentType = produceContentType();
-    gwState.debug('Set response Content-Type: ' + outputContentType)
-    headers.set('Content-Type', outputContentType);
+    if (headers.statusCode != '204') {
+        let outputContentType = produceContentType();
+        gwState.debug('Set response Content-Type: ' + outputContentType);
+        headers.set('Content-Type', outputContentType);
+    }
 }
 
 gwState.onExit();

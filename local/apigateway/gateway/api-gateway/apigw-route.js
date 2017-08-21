@@ -83,6 +83,8 @@ function getSchema(v, type) {
 		} else if (type.indexOf("xml") != -1) {
 			// no default XSD.
 			return '';
+		} else {
+			return '';
 		}
 	}
 }
@@ -183,7 +185,7 @@ if (oneResource) {
 	gwState.info("API resource matched. (api='" + apiVars.root + "', resource='" + apiVars.operation.method.toUpperCase() + ' ' + apiVars.operation.path + "')");
 
 	// backend
-	let backend = (oneResource.backend && oneResource.backend.url) ? oneResource.backend : oneApi.defaultBackend;
+	let backend = oneResource.backend ? oneResource.backend : oneApi.defaultBackend;
 	let backendUrl = backend.url; // url is a required field for backend object
 	let backendType = backend.type ? backend.type : defaults.type;
 	// by default proxy the method in client to backend
@@ -219,10 +221,9 @@ if (oneResource) {
 	serviceVars.protocolMethod = backendMethod;
 
 	setVar('backendType', backendType);
-	//if (backendMethod == 'post' || backendMethod == 'put') {
 
 	// per RFC, GET request shouldn't have Content-Type
-	if (backendMethod != 'get') {
+	if (backendMethod != 'GET') {
 		headerMetadata.current.set('Content-Type', backendType);
 	}
 

@@ -21,18 +21,27 @@ exports.api =
     "/defaults": {
       "post": {
         "request": {},
-        "response": {},
-        "backend": {}
+        "response": {}
       },
       "get": {
         "request": {},
-        "response": {},
-        "backend": {}
+        "response": {}
       },
       "put": {
         "request": {},
+        "response": {}
+      }
+    },
+
+    "/healthcheck": {
+      "post": {
+        "request": {
+          "processor":"request_processor_healthcheck.js"
+        },
         "response": {},
-        "backend": {}
+        "backend": {
+          "url": "http://127.0.0.1:8198/healthcheck",
+        }
       }
     },
 
@@ -40,18 +49,15 @@ exports.api =
     "/verbs": {
       "post": {
         "request": {},
-        "response": {},
-        "backend": {}
+        "response": {}
       },
       "get": {
         "request": {},
-        "response": {},
-        "backend": {}
+        "response": {}
       },
       "put": {
         "request": {},
-        "response": {},
-        "backend": {}
+        "response": {}
       }
     },
 
@@ -427,7 +433,8 @@ exports.api =
           "type":"application/json"
         },
         "backend": {
-          "url":"http://127.0.0.1:8198/backend/?foo=$(request.parameters.param1)&bar=$(request.parameters.param2)"
+          "url":"http://127.0.0.1:8198/backend/?foo=$(request.parameters.param1)&bar=$(request.parameters.param2)",
+          "type":"application/json"
         }
       }
     }

@@ -18,7 +18,11 @@ if (a) {
 }
 hm.response.statusCode = statusCode;
 
-if (inHeaders.get('Content-Type').indexOf('xml') != -1) {
+if (inHeaders.get('X-Empty')) {
+    hm.response.statusCode = '204 No Content';
+    hm.response.remove('Content-Type');
+    session.output.write("");
+} else if (inHeaders.get('Content-Type').indexOf('xml') != -1) {
     session.input.readAsBuffer(function(error, buff) {
         response  = "<response>";
         response += "<headers>";

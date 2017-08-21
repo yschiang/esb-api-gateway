@@ -26,7 +26,7 @@ var _sysParams = {
     'api.common.dir': 'local:///apis/_common/',
 
     'api.metadata': 'api.js',
-    'api.defaults.type': 'application/json',
+    'api.defaults.type': '', // no default backend type
     'api.defaults.jsv': 'local:///apis/_common/json-schema.default.jsv',
     'api.default.xsd': 'store:///schemas/xml.xsd',
     'api.defaults.processor': 'local:///apis/_common/processor.default.js',
